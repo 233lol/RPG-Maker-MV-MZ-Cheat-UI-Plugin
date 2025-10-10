@@ -427,7 +427,8 @@ export class BattleCheat {
     static recover (member) {
         member.setHp(member.mhp)
         member.setMp(member.mmp)
-        member.setTp(member.maxTp())
+        // member.setTp(member.maxTp())
+        // Some games use TP for lust value, so do not recover TP
     }
 
     static recoverAllEnemy () {

@@ -8,6 +8,7 @@ import VariableSettingPanel from './panels/VariableSettingPanel.js'
 import SwitchSettingPanel from './panels/SwitchSettingPanel.js'
 import SaveRecallPanel from './panels/SaveRecallPanel.js'
 import TeleportPanel from './panels/TeleportPanel.js'
+import MapEventPanel from './panels/MapEventPanel.js'
 import ShortcutPanel from './panels/ShortcutPanel.js'
 import TranslateSettingsPanel from './panels/TranslateSettingsPanel.js'
 
@@ -25,6 +26,7 @@ export default {
         SwitchSettingPanel,
         SaveRecallPanel,
         TeleportPanel,
+        MapEventPanel,
         ShortcutPanel,
         TranslateSettingsPanel
     },
@@ -35,9 +37,9 @@ export default {
 <v-card 
     dark
     class="z-index-cheat-0"
-    width="90vw"
+    width="80vw"
     height="90vh"
-    style="max-width: 700px; max-height: 450px;">
+    style="max-width: 775px; max-height: 550px;">
     <v-row 
         class="fill-height ma-0 pa-0">
         <div
@@ -83,7 +85,7 @@ export default {
 
     data () {
       return {
-          navWidth: 200,
+          navWidth: 150,
 
           navTreeModel: undefined,
 
@@ -135,7 +137,7 @@ export default {
                   component: 'switch-setting-panel'
               },
               {
-                  name: '保存/读取位置',
+                  name: '存读位置',
                   icon: 'mdi-map-marker-plus',
                   component: 'save-recall-panel'
               },
@@ -144,7 +146,12 @@ export default {
                   icon: 'mdi-run-fast',
                   component: 'teleport-panel'
               },
-                            {
+              {
+                  name: '地图事件',
+                  icon: 'mdi-map-search',
+                  component: 'map-event-panel'
+              },
+            {
                   name: '快捷键',
                   icon: 'mdi-keyboard-outline',
                   component: 'shortcut-panel'

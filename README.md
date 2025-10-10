@@ -15,4 +15,11 @@
 
 <img src="./assets/Screenshot-battle.png" width="500"/>
 
+<img src="./assets/Screenshot-mapevent.png" width="500"/>
+
 有关原仓库的更多信息，请访问 [paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin)
+
+# 更新
+
+1. 新增了地图事件面板
+2. 恢复时不再恢复TP，因为有些游戏用TP表示欲望值
