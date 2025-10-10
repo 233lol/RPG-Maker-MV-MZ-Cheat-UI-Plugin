@@ -226,8 +226,8 @@ export default {
             this.updatePlayerPosition()
             this.updateMapEvents() // Now handles all event classification in one pass
             this.lastKnownMapId = this.currentMapId
-            
-            // Update every 500ms to reflect real-time changes
+
+            // Update every readInterval to reflect real-time changes
             // store interval id so we can clear it when component is destroyed
             this.renderIntervalId = setInterval(() => {
                 this.checkForMapChange()
@@ -238,7 +238,7 @@ export default {
                 if (this.isCanvasVisible) {
                     this.renderMap()
                 }
-            }, 500)
+            }, this.readInterval)
         },
 
         updateCurrentMapData () {
