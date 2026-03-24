@@ -1,0 +1,33 @@
+name: Package Sources
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cheat-engine/**"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: get short SHA
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm install
+      - name: build and package
+        run: make
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.SHORT_SHA }}.zip
+          path: |
+            mv-${{ env.SHORT_SHA }}.tar.gz
+            mz-${{ env.SHORT_SHA }}.tar.gz
+          compression-level: 9
