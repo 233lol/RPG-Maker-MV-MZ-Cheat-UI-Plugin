@@ -10,3 +10,6 @@
 4. 去除原本的 build script，用 makefile 重写。`package.json` 则用于 [Shiki](https://shiki.style/) 的 fine-grained bundling.
 
 可通过 [CI](https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/actions) 下载 artifact.
+
+![REPL](./assets/repl.png)
+![event](./assets/eventInspector.png)
