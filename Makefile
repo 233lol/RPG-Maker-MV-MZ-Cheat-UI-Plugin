@@ -2,15 +2,19 @@ hash    := $(shell git rev-parse --short HEAD)
 type    := mv mz
 verfn   := cheat-version-description.json
 verjson := '{ "version" : "$(hash)" }'
+shiki   := cheat-engine/www/cheat/libs/shiki.bundle.mjs
 
 .PHONY: all clean $(type)
 
 all: $(type)
 
-clean:
-	-rm *.tar.gz $(verfn)
+$(shiki):
+	pnpm run vendor:shiki
 
-%-$(hash).tar.gz: $(verfn)
+clean:
+	-rm *.tar.gz $(verfn) $(shiki)
+
+%-$(hash).tar.gz: $(verfn) $(shiki)
 	COPYFILE_DISABLE=1 tar -cavf $@ \
 		$(verfn) \
 		-C cheat-engine/www cheat \

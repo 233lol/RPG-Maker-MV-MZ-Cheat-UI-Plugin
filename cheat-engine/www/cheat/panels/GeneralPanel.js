@@ -6,6 +6,9 @@ import {
   BattleCheat,
 } from "../js/CheatHelper.js";
 
+import interpretCodes from "../js/eventCodes.js";
+import { codeToHtml } from "../libs/shiki.bundle.mjs";
+
 export default {
   name: "GeneralPanel",
 
@@ -122,36 +125,53 @@ export default {
     </v-card-text>
 
     <v-dialog v-model="showEventInspectDialog" max-width="1200" persistent>
-        <v-card>
+      <v-card dark>
             <v-card-title class="d-flex align-center">
                 <v-btn icon small @click="closeEventInspectDialog">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
-                <span class="text-h6">当前事件原始数据</span>
+                <span class="text-h6">Event ID: {{ inspectedEventId === null ? '-' : inspectedEventId }}</span>
             </v-card-title>
             <v-card-text>
-                <div class="mb-2">事件ID: <strong>{{ inspectedEventId === null ? '-' : inspectedEventId }}</strong></div>
-                <v-textarea
-                    :value="inspectedEventRaw"
-                    outlined
-                    auto-grow
-                    rows="24"
-                    readonly
-                    hide-details
-                    class="font-weight-regular"
-                    style="font-family: monospace; font-size: 12px;">
-                </v-textarea>
+              <v-sheet
+                outlined
+                class="pa-0"
+                style="max-height: 620px; overflow-y: auto; font-size: 12px;">
+                <div
+                  v-if="inspectedEventRows.length === 0"
+                  class="pa-4 grey--text text--lighten-1">
+                  {{ inspectedEventMessage || '(empty event list)' }}
+                </div>
+                <div v-else>
+                  <div
+                    class="d-flex px-3 py-1 font-weight-bold"
+                    style="border-bottom: 1px solid rgba(255,255,255,0.18); position: sticky; top: 0; z-index: 1;">
+                    <div style="width: 60px;">Index</div>
+                    <div style="width: 70px;">Code</div>
+                    <div class="flex-grow-1">Command / Params</div>
+                  </div>
+                  <div
+                    v-for="row in inspectedEventRows"
+                    :key="row.index"
+                    class="d-flex px-3 py-1"
+                    style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <div style="width: 60px;" class="grey--text text--lighten-1">{{ row.index }}</div>
+                    <div style="width: 70px;" class="blue--text text--lighten-2">{{ row.codeText }}</div>
+                    <div class="flex-grow-1" :style="{ paddingLeft: row.indentPx + 'px' }">
+                      <div class="font-weight-bold text-uppercase">{{ row.commandName }}</div>
+                      <div style="margin-top: 2px; white-space: pre-wrap; word-break: break-word;" v-html="row.paramHtml"></div>
+                    </div>
+                  </div>
+                </div>
+              </v-sheet>
             </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn small text @click="closeEventInspectDialog">关闭</v-btn>
-            </v-card-actions>
         </v-card>
     </v-dialog>
 
     <v-dialog v-model="showDebugReplDialog" max-width="1200" persistent>
       <v-card
+        dark
         ref="debugReplCard"
         @keydown.stop
         @keyup.stop
@@ -160,21 +180,20 @@ export default {
                 <v-btn icon small @click="closeDebugRepl">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
+                <v-card-actions>
+                    <v-btn small color="primary" @click="runRepl">执行 (⌘/Ctrl+Enter)</v-btn>
+                    <v-btn small text @click="clearReplOutput">清空输出</v-btn>
+                </v-card-actions>
                 <v-spacer></v-spacer>
                 <span class="text-h6">调试 REPL</span>
             </v-card-title>
-            <v-card-actions>
-                <v-btn small color="primary" @click="runRepl">执行 (⌘/Ctrl+Enter)</v-btn>
-                <v-btn small text @click="clearReplOutput">清空输出</v-btn>
-                <v-btn small text @click="closeDebugRepl">关闭</v-btn>
-            </v-card-actions>
             <v-card-text>
                 <v-textarea
                     v-model="replInput"
                     label="输入"
                     outlined
                     auto-grow
-                    rows="5"
+                    rows="10"
                     hide-details
                     @keydown.ctrl.enter.stop.prevent="runRepl"
                     @keydown.meta.enter.stop.prevent="runRepl"
@@ -189,7 +208,7 @@ export default {
                     :value="replOutputText"
                     outlined
                     auto-grow
-                    rows="18"
+                    rows="23"
                     readonly
                     hide-details
                   @keydown.stop
@@ -246,6 +265,8 @@ export default {
       showEventInspectDialog: false,
       inspectedEventId: null,
       inspectedEventRaw: "",
+      inspectedEventRows: [],
+      inspectedEventMessage: "",
 
       showDebugReplDialog: false,
       replInput: "$gameMap.mapId()",
@@ -354,49 +375,30 @@ export default {
       BattleCheat.changeAllEnemyHealth(newHp);
     },
 
-    inspectCurrentEvent() {
+    async inspectCurrentEvent() {
       try {
         const eventId = this.getCurrentEventId();
         this.inspectedEventId = eventId;
 
         if (!eventId || eventId <= 0) {
-          this.inspectedEventRaw = JSON.stringify(
-            {
-              mapId: $gameMap ? $gameMap.mapId() : null,
-              message: "当前没有正在执行的地图事件",
-              eventId: eventId || 0,
-            },
-            null,
-            2,
-          );
+          this.inspectedEventRows = [];
+          this.inspectedEventMessage = "当前没有正在执行的地图事件";
           this.showEventInspectDialog = true;
           return;
         }
 
         const eventObject = $gameMap.event(eventId);
-        const eventData =
-          eventObject && eventObject.event ? eventObject.event() : null;
         const pageData =
           eventObject && eventObject.page ? eventObject.page() : null;
 
-        this.inspectedEventRaw = JSON.stringify(
-          {
-            mapId: $gameMap ? $gameMap.mapId() : null,
-            eventId,
-            eventData,
-            pageData,
-          },
-          null,
-          2,
+        this.inspectedEventRows = await this.formatEventListEntries(
+          pageData && pageData.list ? pageData.list : [],
         );
+        this.inspectedEventMessage =
+          this.inspectedEventRows.length === 0 ? "(empty event list)" : "";
       } catch (error) {
-        this.inspectedEventRaw = JSON.stringify(
-          {
-            error: String(error),
-          },
-          null,
-          2,
-        );
+        this.inspectedEventRows = [];
+        this.inspectedEventMessage = `error: ${String(error)}`;
       }
 
       this.showEventInspectDialog = true;
@@ -415,6 +417,69 @@ export default {
         return 0;
       }
       return Number($gameMap._interpreter.eventId()) || 0;
+    },
+
+    async formatEventListEntries(list) {
+      if (!Array.isArray(list) || list.length === 0) {
+        return [];
+      }
+
+      return Promise.all(
+        list.map(async (entry, index) => {
+          const safeEntry = entry || {};
+          const indent = Number.isInteger(safeEntry.indent)
+            ? safeEntry.indent
+            : 0;
+          const code =
+            typeof safeEntry.code === "number" ? safeEntry.code : null;
+          const codeName =
+            code === null ? "unknown" : interpretCodes.interpretCodes(code);
+          const paramValue = safeEntry.parameters;
+          const paramText = this.stringifyEventParam(paramValue);
+          return {
+            index,
+            codeText: code === null ? "n/a" : String(code),
+            commandName: codeName,
+            indentPx: Math.max(0, indent) * 16,
+            paramHtml: await this.highlightParamText(paramText),
+          };
+        }),
+      );
+    },
+
+    async highlightParamText(text) {
+      try {
+        return await codeToHtml(text, {
+          lang: "json",
+          theme: "dark-plus",
+        });
+      } catch (error) {
+        return `<pre style="margin:0; white-space:pre-wrap; word-break:break-word;">${this.escapeHtml(text)}</pre>`;
+      }
+    },
+
+    escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    },
+
+    stringifyEventParam(value) {
+      if (value === undefined) {
+        return "undefined";
+      }
+      if (typeof value === "string") {
+        return value;
+      }
+
+      try {
+        return JSON.stringify(value, null, 2);
+      } catch (error) {
+        return String(value);
+      }
     },
 
     openDebugRepl() {
@@ -486,7 +551,7 @@ export default {
     },
 
     runRepl() {
-      const code = String(this.replInput || "").trim();
+      const code = String(this.replInput || "");
       if (!code) {
         this.appendReplOutput("warn", "请输入要执行的 JavaScript 代码");
         return;

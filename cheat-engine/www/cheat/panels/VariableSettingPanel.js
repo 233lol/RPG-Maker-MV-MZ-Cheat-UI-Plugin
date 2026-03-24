@@ -1,9 +1,9 @@
-import {TRANSLATE_SETTINGS, TRANSLATOR} from '../js/TranslateHelper.js'
+import { TRANSLATE_SETTINGS, TRANSLATOR } from "../js/TranslateHelper.js";
 
 export default {
-    name: 'VariableSettingPanel',
+  name: "VariableSettingPanel",
 
-    template: `
+  template: `
 <v-card flat class="ma-0 pa-0">
     <v-data-table
         v-if="tableHeaders"
@@ -81,82 +81,88 @@ export default {
 </v-card>
     `,
 
-    data () {
+  data() {
+    return {
+      search: "",
+      excludeNameless: true,
+
+      variableNames: [],
+
+      tableHeaders: [
+        {
+          text: "变量名",
+          value: "name",
+        },
+        {
+          text: "值",
+          value: "value",
+        },
+      ],
+      tableItems: [],
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  computed: {
+    filteredTableItems() {
+      return this.tableItems.filter((item) => {
+        if (this.excludeNameless && !item.name) {
+          return false;
+        }
+
+        return true;
+      });
+    },
+  },
+
+  methods: {
+    async initializeVariables() {
+      this.variableNames = await this.getVariableNames();
+
+      this.tableItems = this.variableNames.map((varName, idx) => {
         return {
-            search: '',
-            excludeNameless: true,
-
-            variableNames: [],
-
-            tableHeaders: [
-                {
-                    text: '变量名',
-                    value: 'name'
-                },
-                {
-                    text: '值',
-                    value: 'value'
-                }
-            ],
-            tableItems: []
-        }
+          id: idx,
+          name: varName,
+          value: $gameVariables.value(idx),
+        };
+      });
     },
 
-    created () {
-        this.initializeVariables()
+    async getVariableNames() {
+      const rawVariableNames = $dataSystem.variables.slice();
+
+      if (TRANSLATE_SETTINGS.isVariableTranslateEnabled()) {
+        return await TRANSLATOR.translateBulk(rawVariableNames);
+      }
+
+      return rawVariableNames;
     },
 
-    computed: {
-        filteredTableItems () {
-            return this.tableItems.filter(item => {
-                if (this.excludeNameless && !item.name) {
-                    return false
-                }
+    onItemChange(item) {
+      // modify value
+      const v = $gameVariables.value(item.id);
+      typeof v === "number"
+        ? $gameVariables.setValue(item.id, Number(item.value))
+        : $gameVariables.setValue(item.id, item.value);
 
-                return true
-            })
-        }
+      // refresh
+      item.value = $gameVariables.value(item.id);
     },
 
-    methods: {
-        async initializeVariables () {
-            this.variableNames = await this.getVariableNames()
+    tableItemFilter(value, search, item) {
+      if (search === null || search.trim() === "") {
+        return true;
+      }
 
-            this.tableItems = this.variableNames.map((varName, idx) => {
-                return {
-                    id: idx,
-                    name: varName,
-                    value: $gameVariables.value(idx)
-                }
-            })
-        },
+      search = search.toLowerCase();
 
-        async getVariableNames () {
-            const rawVariableNames = $dataSystem.variables.slice()
-
-            if (TRANSLATE_SETTINGS.isVariableTranslateEnabled()) {
-                return await TRANSLATOR.translateBulk(rawVariableNames)
-            }
-
-            return rawVariableNames
-        },
-
-        onItemChange (item) {
-            // modify value
-            $gameVariables.setValue(item.id, item.value)
-
-            // refresh
-            item.value = $gameVariables.value(item.id)
-        },
-
-        tableItemFilter (value, search, item) {
-            if (search === null || search.trim() === '') {
-                return true
-            }
-
-            search = search.toLowerCase()
-
-            return item.name.toLowerCase().contains(search) || String(item.value).toLowerCase().contains(search)
-        }
-    }
-}
+      return (
+        item.name.toLowerCase().contains(search) ||
+        String(item.value).toLowerCase().contains(search)
+      );
+    },
+  },
+};
