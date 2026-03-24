@@ -366,7 +366,7 @@ export default {
             }
         },
 
-        updateMapEvents () {
+        updateMapEvents() {
             try {
                 // Clear all event arrays
                 this.mapEvents = []

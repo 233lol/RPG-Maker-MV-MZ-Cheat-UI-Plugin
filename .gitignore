@@ -1,2 +1,3 @@
-.idea/
-venv/
+mv-*.tar.gz
+mz-*.tar.gz
+cheat-version-description.json

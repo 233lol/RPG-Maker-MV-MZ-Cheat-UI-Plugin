@@ -1,9 +1,15 @@
-import { GeneralCheat, GameSpeedCheat, SpeedCheat, SceneCheat, BattleCheat } from '../js/CheatHelper.js'
+import {
+  GeneralCheat,
+  GameSpeedCheat,
+  SpeedCheat,
+  SceneCheat,
+  BattleCheat,
+} from "../js/CheatHelper.js";
 
 export default {
-    name: 'GeneralPanel',
+  name: "GeneralPanel",
 
-    template: `
+  template: `
 <v-card 
     class="ma-0 pa-0"
     flat>
@@ -110,6 +116,91 @@ export default {
         <v-btn small @click="changeAllEnemyHealth(1)">敌人1血</v-btn>
     </v-card-text>
 
+    <v-card-text class="pt-0">
+        <v-btn small color="indigo" @click="inspectCurrentEvent">检查当前事件</v-btn>
+        <v-btn small color="deep-purple" class="ml-2" @click="openDebugRepl">打开REPL</v-btn>
+    </v-card-text>
+
+    <v-dialog v-model="showEventInspectDialog" max-width="1200" persistent>
+        <v-card>
+            <v-card-title class="d-flex align-center">
+                <v-btn icon small @click="closeEventInspectDialog">
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <span class="text-h6">当前事件原始数据</span>
+            </v-card-title>
+            <v-card-text>
+                <div class="mb-2">事件ID: <strong>{{ inspectedEventId === null ? '-' : inspectedEventId }}</strong></div>
+                <v-textarea
+                    :value="inspectedEventRaw"
+                    outlined
+                    auto-grow
+                    rows="24"
+                    readonly
+                    hide-details
+                    class="font-weight-regular"
+                    style="font-family: monospace; font-size: 12px;">
+                </v-textarea>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn small text @click="closeEventInspectDialog">关闭</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showDebugReplDialog" max-width="1200" persistent>
+      <v-card
+        ref="debugReplCard"
+        @keydown.stop
+        @keyup.stop
+        @keypress.stop>
+            <v-card-title class="d-flex align-center">
+                <v-btn icon small @click="closeDebugRepl">
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+                <span class="text-h6">调试 REPL</span>
+            </v-card-title>
+            <v-card-actions>
+                <v-btn small color="primary" @click="runRepl">执行 (⌘/Ctrl+Enter)</v-btn>
+                <v-btn small text @click="clearReplOutput">清空输出</v-btn>
+                <v-btn small text @click="closeDebugRepl">关闭</v-btn>
+            </v-card-actions>
+            <v-card-text>
+                <v-textarea
+                    v-model="replInput"
+                    label="输入"
+                    outlined
+                    auto-grow
+                    rows="5"
+                    hide-details
+                    @keydown.ctrl.enter.stop.prevent="runRepl"
+                    @keydown.meta.enter.stop.prevent="runRepl"
+                  @keydown.stop
+                  @keyup.stop
+                  @keypress.stop
+                    style="font-family: monospace; font-size: 12px;">
+                </v-textarea>
+
+                <div class="mt-3 mb-1 text-caption">输出</div>
+                <v-textarea
+                    :value="replOutputText"
+                    outlined
+                    auto-grow
+                    rows="18"
+                    readonly
+                    hide-details
+                  @keydown.stop
+                  @keyup.stop
+                  @keypress.stop
+                    style="font-family: monospace; font-size: 12px;">
+                </v-textarea>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
     <v-tooltip
         bottom>
         <span>重新加载游戏数据</span>
@@ -133,145 +224,380 @@ export default {
 </v-card>
     `,
 
-    data () {
-        return {
-            godMode: false,
-            noClip: false,
-            gold: 0,
-            speed: 0,
-            fixSpeed: false,
+  data() {
+    return {
+      godMode: false,
+      noClip: false,
+      gold: 0,
+      speed: 0,
+      fixSpeed: false,
 
-            minSpeed: 1,
-            maxSpeed: 10,
-            stepSpeed: 0.5,
+      minSpeed: 1,
+      maxSpeed: 10,
+      stepSpeed: 0.5,
 
-            gameSpeed: 1,
-            minGameSpeed: 0.1,
-            maxGameSpeed: 10,
-            stepGameSpeed: 0.1,
-            applyAllForGameSpeed: false,
-            applyBattleForGameSpeed: false
-        }
+      gameSpeed: 1,
+      minGameSpeed: 0.1,
+      maxGameSpeed: 10,
+      stepGameSpeed: 0.1,
+      applyAllForGameSpeed: false,
+      applyBattleForGameSpeed: false,
+
+      showEventInspectDialog: false,
+      inspectedEventId: null,
+      inspectedEventRaw: "",
+
+      showDebugReplDialog: false,
+      replInput: "$gameMap.mapId()",
+      replOutputEntries: [],
+      replGlobalKeyGuard: null,
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  watch: {
+    showDebugReplDialog(newValue) {
+      if (newValue) {
+        this.enableReplGlobalKeyGuard();
+      } else {
+        this.disableReplGlobalKeyGuard();
+      }
+    },
+  },
+
+  beforeDestroy() {
+    this.disableReplGlobalKeyGuard();
+  },
+
+  methods: {
+    initializeVariables() {
+      this.noClip = $gamePlayer._through;
+      this.speed = $gamePlayer.moveSpeed();
+      this.fixSpeed = SpeedCheat.isFixed();
+      this.gold = $gameParty._gold;
+
+      this.gameSpeed = GameSpeedCheat.getRate();
+      const gameSpeedSceneOption = GameSpeedCheat.getSceneOption();
+      if (gameSpeedSceneOption === GameSpeedCheat.sceneOptions().all) {
+        this.applyAllForGameSpeed = true;
+      } else if (
+        gameSpeedSceneOption === GameSpeedCheat.sceneOptions().battle
+      ) {
+        this.applyBattleForGameSpeed = true;
+      }
     },
 
-    created () {
-        this.initializeVariables()
+    onNoClipChange() {
+      GeneralCheat.toggleNoClip();
+      this.initializeVariables();
     },
 
-    methods: {
-        initializeVariables () {
-            this.noClip = $gamePlayer._through
-            this.speed = $gamePlayer.moveSpeed()
-            this.fixSpeed = SpeedCheat.isFixed()
-            this.gold = $gameParty._gold
+    onSpeedChange() {
+      SpeedCheat.setSpeed(this.speed, this.fixSpeed);
+      SpeedCheat.__writeSettings(this.speed, this.fixSpeed);
+      this.initializeVariables();
+    },
 
-            this.gameSpeed = GameSpeedCheat.getRate()
-            const gameSpeedSceneOption = GameSpeedCheat.getSceneOption()
-            if (gameSpeedSceneOption === GameSpeedCheat.sceneOptions().all) {
-                this.applyAllForGameSpeed = true
-            } else if (gameSpeedSceneOption === GameSpeedCheat.sceneOptions().battle) {
-                this.applyBattleForGameSpeed = true
-            }
-        },
+    addSpeed(amount) {
+      this.speed = Math.min(
+        Math.max(this.speed + amount, this.minSpeed),
+        this.maxSpeed,
+      );
+      this.onSpeedChange();
+    },
 
-        onNoClipChange () {
-            GeneralCheat.toggleNoClip()
-            this.initializeVariables()
-        },
+    onGoldChange() {
+      if (
+        isNaN(this.gold) ||
+        !Number.isInteger(Number(this.gold)) ||
+        this.gold < 0
+      ) {
+        return;
+      }
 
-        onSpeedChange () {
-            SpeedCheat.setSpeed(this.speed, this.fixSpeed)
-            SpeedCheat.__writeSettings(this.speed, this.fixSpeed)
-            this.initializeVariables()
-        },
+      const diff = this.gold - $gameParty._gold;
 
-        addSpeed (amount) {
-            this.speed = Math.min(Math.max(this.speed + amount, this.minSpeed), this.maxSpeed)
-            this.onSpeedChange()
-        },
+      if (diff < 0) {
+        $gameParty.loseGold(-diff);
+      } else if (diff > 0) {
+        $gameParty.gainGold(diff);
+      }
 
-        onGoldChange () {
-            if (isNaN(this.gold) || !Number.isInteger(Number(this.gold)) || this.gold < 0) {
-                return
-            }
+      this.gold = $gameParty._gold;
+      this.initializeVariables();
+    },
 
-            const diff = this.gold - $gameParty._gold
+    gotoTitle() {
+      SceneCheat.gotoTitle();
+    },
 
-            if (diff < 0) {
-                $gameParty.loseGold(-diff)
-            } else if (diff > 0) {
-                $gameParty.gainGold(diff)
-            }
+    toggleSaveScene() {
+      SceneCheat.toggleSaveScene();
+    },
 
-            this.gold = $gameParty._gold
-            this.initializeVariables()
-        },
+    toggleLoadScene() {
+      SceneCheat.toggleLoadScene();
+    },
 
-        gotoTitle () {
-            SceneCheat.gotoTitle()
-        },
+    victory() {
+      BattleCheat.victory();
+    },
 
-        toggleSaveScene () {
-            SceneCheat.toggleSaveScene()
-        },
+    recoverAllParty() {
+      BattleCheat.recoverAllParty();
+    },
 
-        toggleLoadScene () {
-            SceneCheat.toggleLoadScene()
-        },
+    changeAllEnemyHealth(newHp) {
+      BattleCheat.changeAllEnemyHealth(newHp);
+    },
 
-        victory () {
-            BattleCheat.victory()
-        },
+    inspectCurrentEvent() {
+      try {
+        const eventId = this.getCurrentEventId();
+        this.inspectedEventId = eventId;
 
-        recoverAllParty () {
-            BattleCheat.recoverAllParty()
-        },
-
-        changeAllEnemyHealth (newHp) {
-            BattleCheat.changeAllEnemyHealth(newHp)
-        },
-
-        onGameSpeedChange () {
-            let sceneOption = null
-            if (this.applyAllForGameSpeed) {
-                sceneOption = GameSpeedCheat.sceneOptions().all
-            } else if (this.applyBattleForGameSpeed) {
-                sceneOption = GameSpeedCheat.sceneOptions().battle
-            }
-
-            GameSpeedCheat.setGameSpeed(this.gameSpeed, sceneOption)
-            GameSpeedCheat.__writeSettings(this.gameSpeed, sceneOption)
-            this.initializeVariables()
-        },
-
-        addGameSpeed (amount) {
-            this.gameSpeed = Math.min(Math.max(this.gameSpeed + amount, this.minGameSpeed), this.maxGameSpeed)
-            this.onGameSpeedChange()
-        },
-
-        setGameSpeed (amount) {
-            this.gameSpeed = 1
-            this.onGameSpeedChange()
-        },
-
-        onApplyAllForGameSpeedChange () {
-            if (this.applyAllForGameSpeed) {
-                this.applyBattleForGameSpeed = false
-            } else {
-                this.applyBattleForGameSpeed = true
-            }
-
-            this.onGameSpeedChange()
-        },
-
-        onApplyBattleForGameSpeedChange () {
-            if (this.applyBattleForGameSpeed) {
-                this.applyAllForGameSpeed = false
-            } else {
-                this.applyAllForGameSpeed = true
-            }
-
-            this.onGameSpeedChange()
+        if (!eventId || eventId <= 0) {
+          this.inspectedEventRaw = JSON.stringify(
+            {
+              mapId: $gameMap ? $gameMap.mapId() : null,
+              message: "当前没有正在执行的地图事件",
+              eventId: eventId || 0,
+            },
+            null,
+            2,
+          );
+          this.showEventInspectDialog = true;
+          return;
         }
-    }
-}
+
+        const eventObject = $gameMap.event(eventId);
+        const eventData =
+          eventObject && eventObject.event ? eventObject.event() : null;
+        const pageData =
+          eventObject && eventObject.page ? eventObject.page() : null;
+
+        this.inspectedEventRaw = JSON.stringify(
+          {
+            mapId: $gameMap ? $gameMap.mapId() : null,
+            eventId,
+            eventData,
+            pageData,
+          },
+          null,
+          2,
+        );
+      } catch (error) {
+        this.inspectedEventRaw = JSON.stringify(
+          {
+            error: String(error),
+          },
+          null,
+          2,
+        );
+      }
+
+      this.showEventInspectDialog = true;
+    },
+
+    closeEventInspectDialog() {
+      this.showEventInspectDialog = false;
+    },
+
+    getCurrentEventId() {
+      if (
+        !$gameMap ||
+        !$gameMap._interpreter ||
+        typeof $gameMap._interpreter.eventId !== "function"
+      ) {
+        return 0;
+      }
+      return Number($gameMap._interpreter.eventId()) || 0;
+    },
+
+    openDebugRepl() {
+      this.showDebugReplDialog = true;
+    },
+
+    closeDebugRepl() {
+      this.showDebugReplDialog = false;
+    },
+
+    enableReplGlobalKeyGuard() {
+      if (this.replGlobalKeyGuard) {
+        return;
+      }
+
+      this.replGlobalKeyGuard = (event) => {
+        if (!this.showDebugReplDialog) {
+          return;
+        }
+
+        const target = event.target;
+        if (this.isNodeInsideDebugRepl(target)) {
+          return;
+        }
+
+        if (typeof event.stopImmediatePropagation === "function") {
+          event.stopImmediatePropagation();
+        }
+        event.stopPropagation();
+        event.preventDefault();
+      };
+
+      window.addEventListener("keydown", this.replGlobalKeyGuard, true);
+      window.addEventListener("keyup", this.replGlobalKeyGuard, true);
+      window.addEventListener("keypress", this.replGlobalKeyGuard, true);
+    },
+
+    disableReplGlobalKeyGuard() {
+      if (!this.replGlobalKeyGuard) {
+        return;
+      }
+
+      window.removeEventListener("keydown", this.replGlobalKeyGuard, true);
+      window.removeEventListener("keyup", this.replGlobalKeyGuard, true);
+      window.removeEventListener("keypress", this.replGlobalKeyGuard, true);
+      this.replGlobalKeyGuard = null;
+    },
+
+    isNodeInsideDebugRepl(node) {
+      const replCardRef = this.$refs.debugReplCard;
+      const replRoot =
+        replCardRef && replCardRef.$el ? replCardRef.$el : replCardRef;
+      if (!replRoot || !node || typeof replRoot.contains !== "function") {
+        return false;
+      }
+
+      if (replRoot.contains(node)) {
+        return true;
+      }
+
+      if (
+        typeof node.closest === "function" &&
+        node.closest(".v-dialog__content")
+      ) {
+        return true;
+      }
+
+      return false;
+    },
+
+    runRepl() {
+      const code = String(this.replInput || "").trim();
+      if (!code) {
+        this.appendReplOutput("warn", "请输入要执行的 JavaScript 代码");
+        return;
+      }
+
+      this.appendReplOutput("input", code);
+
+      try {
+        const result = eval(code);
+        this.appendReplOutput("result", this.formatReplValue(result));
+      } catch (error) {
+        const message = error && error.stack ? error.stack : String(error);
+        this.appendReplOutput("error", message);
+      }
+    },
+
+    clearReplOutput() {
+      this.replOutputEntries = [];
+    },
+
+    appendReplOutput(type, content) {
+      const labelMap = {
+        input: "IN",
+        result: "OUT",
+        error: "ERR",
+        warn: "WARN",
+      };
+      const label = labelMap[type] || "LOG";
+      this.replOutputEntries.push(`${label}> ${content}`);
+
+      if (this.replOutputEntries.length > 200) {
+        this.replOutputEntries = this.replOutputEntries.slice(-200);
+      }
+    },
+
+    formatReplValue(value) {
+      if (value === undefined) {
+        return "undefined";
+      }
+      if (typeof value === "string") {
+        return value;
+      }
+      if (
+        typeof value === "number" ||
+        typeof value === "boolean" ||
+        value === null
+      ) {
+        return String(value);
+      }
+
+      try {
+        return JSON.stringify(value, null, 2);
+      } catch (error) {
+        try {
+          return String(value);
+        } catch (stringError) {
+          return "[Unserializable value]";
+        }
+      }
+    },
+
+    onGameSpeedChange() {
+      let sceneOption = null;
+      if (this.applyAllForGameSpeed) {
+        sceneOption = GameSpeedCheat.sceneOptions().all;
+      } else if (this.applyBattleForGameSpeed) {
+        sceneOption = GameSpeedCheat.sceneOptions().battle;
+      }
+
+      GameSpeedCheat.setGameSpeed(this.gameSpeed, sceneOption);
+      GameSpeedCheat.__writeSettings(this.gameSpeed, sceneOption);
+      this.initializeVariables();
+    },
+
+    addGameSpeed(amount) {
+      this.gameSpeed = Math.min(
+        Math.max(this.gameSpeed + amount, this.minGameSpeed),
+        this.maxGameSpeed,
+      );
+      this.onGameSpeedChange();
+    },
+
+    setGameSpeed(amount) {
+      this.gameSpeed = 1;
+      this.onGameSpeedChange();
+    },
+
+    onApplyAllForGameSpeedChange() {
+      if (this.applyAllForGameSpeed) {
+        this.applyBattleForGameSpeed = false;
+      } else {
+        this.applyBattleForGameSpeed = true;
+      }
+
+      this.onGameSpeedChange();
+    },
+
+    onApplyBattleForGameSpeedChange() {
+      if (this.applyBattleForGameSpeed) {
+        this.applyAllForGameSpeed = false;
+      } else {
+        this.applyAllForGameSpeed = true;
+      }
+
+      this.onGameSpeedChange();
+    },
+  },
+
+  computed: {
+    replOutputText() {
+      return this.replOutputEntries.join("\n");
+    },
+  },
+};
