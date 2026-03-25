@@ -6,6 +6,7 @@ import ConfirmDialog from "./components/ConfirmDialog.js";
 import { customizeRPGMakerFunctions } from "./init/customize_functions.js";
 import { Key } from "./js/KeyCodes.js";
 import { Alert } from "./js/AlertHelper.js";
+import { RPGVERSION } from "./version.js"
 
 export default {
   name: "MainComponent",
@@ -138,20 +139,7 @@ export default {
     },
 
     getCurrentCheatVersion() {
-      try {
-        const targetDir = Utils.RPGMAKER_NAME === "MV" ? "www" : ".";
-
-        const description = JSON.parse(
-          require("fs").readFileSync(
-            targetDir + "/cheat-version-description.json",
-            "utf-8",
-          ),
-        );
-
-        return description.version;
-      } catch (err) {
-        return null;
-      }
+      return RPGVERSION
     },
   },
 };
