@@ -14,13 +14,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: get short SHA
         run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          cache: true
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - run: npm install
+          cache: "pnpm"
+      - run: pnpm install
       - name: build and package
         run: make
       - name: Upload artifact

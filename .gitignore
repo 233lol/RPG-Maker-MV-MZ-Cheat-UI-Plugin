@@ -3,3 +3,4 @@ mz-*.tar.gz
 cheat-version-description.json
 node_modules/
 cheat-engine/www/cheat/version.js
+cheat-engine/www/cheat/libs/shiki.bundle.mjs

@@ -6,7 +6,7 @@ shiki := cheat-engine/www/cheat/libs/shiki.bundle.mjs
 
 .PHONY: all clean $(type)
 
-all: $(type)
+all: $(type) $(shiki)
 
 $(shiki):
 	pnpm run vendor:shiki
