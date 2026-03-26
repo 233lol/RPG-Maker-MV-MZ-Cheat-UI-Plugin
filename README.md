@@ -13,3 +13,11 @@
 
 ![REPL](./assets/repl.png)
 ![event](./assets/eventInspector.png)
+
+Building:
+
+```shell
+pnpm i && make
+```
+
+`make` 后可加参数 `mv | mz` 只打包其中一个游戏版本的插件。
