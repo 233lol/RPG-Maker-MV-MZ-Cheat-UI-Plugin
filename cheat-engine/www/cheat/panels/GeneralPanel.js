@@ -154,8 +154,12 @@ export default {
                   <div
                     v-for="row in inspectedEventRows"
                     :key="row.index"
+                    :ref="'eventRow-' + row.index"
                     class="d-flex px-3 py-1"
-                    style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    :style="{
+                      borderBottom: '1px solid rgba(255,255,255,0.08)',
+                      backgroundColor: row.index === inspectedEventCurrentIndex ? 'rgba(33, 150, 243, 0.16)' : 'transparent'
+                    }">
                     <div style="width: 60px;" class="grey--text text--lighten-1">{{ row.index }}</div>
                     <div style="width: 70px;" class="blue--text text--lighten-2">{{ row.codeText }}</div>
                     <div class="flex-grow-1" :style="{ paddingLeft: row.indentPx + 'px' }">
@@ -264,6 +268,7 @@ export default {
 
       showEventInspectDialog: false,
       inspectedEventId: null,
+      inspectedEventCurrentIndex: -1,
       inspectedEventRaw: "",
       inspectedEventRows: [],
       inspectedEventMessage: "",
@@ -272,6 +277,7 @@ export default {
       replInput: "$gameMap.mapId()",
       replOutputEntries: [],
       replGlobalKeyGuard: null,
+      popupEscapeKeyGuard: null,
     };
   },
 
@@ -280,17 +286,24 @@ export default {
   },
 
   watch: {
+    showEventInspectDialog() {
+      this.updatePopupEscapeKeyGuard();
+    },
+
     showDebugReplDialog(newValue) {
       if (newValue) {
         this.enableReplGlobalKeyGuard();
       } else {
         this.disableReplGlobalKeyGuard();
       }
+
+      this.updatePopupEscapeKeyGuard();
     },
   },
 
   beforeDestroy() {
     this.disableReplGlobalKeyGuard();
+    this.disablePopupEscapeKeyGuard();
   },
 
   methods: {
@@ -379,6 +392,7 @@ export default {
       try {
         const eventId = this.getCurrentEventId();
         this.inspectedEventId = eventId;
+        this.inspectedEventCurrentIndex = this.getCurrentEventCommandIndex();
 
         if (!eventId || eventId <= 0) {
           this.inspectedEventRows = [];
@@ -402,6 +416,11 @@ export default {
       }
 
       this.showEventInspectDialog = true;
+      this.$nextTick(() => {
+        window.requestAnimationFrame(() => {
+          this.scrollToCurrentEventEntry();
+        });
+      });
     },
 
     closeEventInspectDialog() {
@@ -409,14 +428,33 @@ export default {
     },
 
     getCurrentEventId() {
-      if (
-        !$gameMap ||
-        !$gameMap._interpreter ||
-        typeof $gameMap._interpreter.eventId !== "function"
-      ) {
-        return 0;
-      }
       return Number($gameMap._interpreter.eventId()) || 0;
+    },
+
+    getCurrentEventCommandIndex() {
+      const index = Number($gameMap._interpreter._index);
+      if (!Number.isInteger(index) || index < 0) {
+        return -1;
+      }
+
+      return index - 1;
+    },
+
+    scrollToCurrentEventEntry() {
+      if (this.inspectedEventCurrentIndex < 0) {
+        return;
+      }
+
+      const rowRef = this.$refs[`eventRow-${this.inspectedEventCurrentIndex}`];
+      const rowEl = Array.isArray(rowRef) ? rowRef[0] : rowRef;
+      if (!rowEl || typeof rowEl.scrollIntoView !== "function") {
+        return;
+      }
+
+      rowEl.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     },
 
     async formatEventListEntries(list) {
@@ -435,7 +473,7 @@ export default {
           const codeName =
             code === null ? "unknown" : interpretCodes.interpretCodes(code);
           const paramValue = safeEntry.parameters;
-          const paramText = this.stringifyEventParam(paramValue);
+          const paramText = JSON.stringify(paramValue);
           return {
             index,
             codeText: code === null ? "n/a" : String(code),
@@ -454,31 +492,7 @@ export default {
           theme: "dark-plus",
         });
       } catch (error) {
-        return `<pre style="margin:0; white-space:pre-wrap; word-break:break-word;">${this.escapeHtml(text)}</pre>`;
-      }
-    },
-
-    escapeHtml(text) {
-      return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    },
-
-    stringifyEventParam(value) {
-      if (value === undefined) {
-        return "undefined";
-      }
-      if (typeof value === "string") {
-        return value;
-      }
-
-      try {
-        return JSON.stringify(value, null, 2);
-      } catch (error) {
-        return String(value);
+        return `<pre style="margin:0; white-space:pre-wrap; word-break:break-word;">${error}</pre>`;
       }
     },
 
@@ -488,6 +502,54 @@ export default {
 
     closeDebugRepl() {
       this.showDebugReplDialog = false;
+    },
+
+    updatePopupEscapeKeyGuard() {
+      if (this.showEventInspectDialog || this.showDebugReplDialog) {
+        this.enablePopupEscapeKeyGuard();
+      } else {
+        this.disablePopupEscapeKeyGuard();
+      }
+    },
+
+    enablePopupEscapeKeyGuard() {
+      if (this.popupEscapeKeyGuard) {
+        return;
+      }
+
+      this.popupEscapeKeyGuard = (event) => {
+        if (event.key !== "Escape") {
+          return;
+        }
+
+        if (!this.showEventInspectDialog && !this.showDebugReplDialog) {
+          return;
+        }
+
+        if (this.showDebugReplDialog) {
+          this.closeDebugRepl();
+        }
+        if (this.showEventInspectDialog) {
+          this.closeEventInspectDialog();
+        }
+
+        if (typeof event.stopImmediatePropagation === "function") {
+          event.stopImmediatePropagation();
+        }
+        event.stopPropagation();
+        event.preventDefault();
+      };
+
+      window.addEventListener("keydown", this.popupEscapeKeyGuard, true);
+    },
+
+    disablePopupEscapeKeyGuard() {
+      if (!this.popupEscapeKeyGuard) {
+        return;
+      }
+
+      window.removeEventListener("keydown", this.popupEscapeKeyGuard, true);
+      this.popupEscapeKeyGuard = null;
     },
 
     enableReplGlobalKeyGuard() {

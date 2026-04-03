@@ -129,6 +129,8 @@ export default {
           .then((d) => d.sha.slice(0, 7));
         Alert.info(
           `Cheat ${currSHA} loaded. Toggle with ${GLOBAL_SHORTCUT.getShortcut("toggleCheatModal").asString()}`,
+          null,
+          3000,
         );
         if (currSHA !== pubSHA)
           Alert.warn(
