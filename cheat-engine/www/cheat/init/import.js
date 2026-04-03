@@ -58,7 +58,7 @@ function applyCheat() {
   }
 
   // load libs
-  __loadJavaScript("cheat/libs/axios.min.js");
+  //__loadJavaScript("cheat/libs/axios.min.js");
 
   // add <div id='app'> node for vue
   const appDiv = document.createElement("div");

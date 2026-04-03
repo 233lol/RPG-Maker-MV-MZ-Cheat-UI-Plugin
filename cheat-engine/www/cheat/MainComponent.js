@@ -6,7 +6,7 @@ import ConfirmDialog from "./components/ConfirmDialog.js";
 import { customizeRPGMakerFunctions } from "./init/customize_functions.js";
 import { Key } from "./js/KeyCodes.js";
 import { Alert } from "./js/AlertHelper.js";
-import { RPGVERSION } from "./version.js"
+import { RPGVERSION } from "./version.js";
 
 export default {
   name: "MainComponent",
@@ -120,13 +120,16 @@ export default {
     },
 
     async checkVersion() {
+      const currSHA = this.getCurrentCheatVersion();
       try {
-        const pubSHA = (
-          await axios.get(
-            "https://api.github.com/repos/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/commits/main",
-          )
-        ).data.sha.slice(0, 7);
-        const currSHA = this.getCurrentCheatVersion();
+        const pubSHA = await fetch(
+          "https://api.github.com/repos/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/commits/main",
+        )
+          .then((d) => d.json())
+          .then((d) => d.sha.slice(0, 7));
+        Alert.info(
+          `Cheat ${currSHA} loaded. Toggle with ${GLOBAL_SHORTCUT.getShortcut("toggleCheatModal").asString()}`,
+        );
         if (currSHA !== pubSHA)
           Alert.warn(
             `Commit mismatch: ${currSHA}/${pubSHA} (Remote)`,
@@ -139,7 +142,7 @@ export default {
     },
 
     getCurrentCheatVersion() {
-      return RPGVERSION
+      return RPGVERSION;
     },
   },
 };

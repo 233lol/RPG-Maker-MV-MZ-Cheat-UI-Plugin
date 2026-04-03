@@ -10,7 +10,7 @@ import SaveRecallPanel from './panels/SaveRecallPanel.js'
 import TeleportPanel from './panels/TeleportPanel.js'
 import MapEventPanel from './panels/MapEventPanel.js'
 import ShortcutPanel from './panels/ShortcutPanel.js'
-import TranslateSettingsPanel from './panels/TranslateSettingsPanel.js'
+//import TranslateSettingsPanel from './panels/TranslateSettingsPanel.js'
 
 export default {
     name: 'CheatModal',
@@ -28,7 +28,7 @@ export default {
         TeleportPanel,
         MapEventPanel,
         ShortcutPanel,
-        TranslateSettingsPanel
+//        TranslateSettingsPanel
     },
 
     // default  width="700" height="400"
