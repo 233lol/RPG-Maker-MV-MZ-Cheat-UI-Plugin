@@ -1,5 +1,4 @@
 import { KEY_VALUE_STORAGE } from "../js/KeyValueStorage.js";
-import { TRANSLATE_SETTINGS, TRANSLATOR } from "../js/TranslateHelper.js";
 
 export default {
   name: "SaveRecallPanel",
@@ -204,13 +203,7 @@ export default {
       let fullPath = [];
       this.getMapAncestors(id, fullPath);
 
-      fullPath = fullPath.map((id) => $dataMapInfos[id].name).join(" / ");
-
-      if (TRANSLATE_SETTINGS.isMapTranslateEnabled()) {
-        return await TRANSLATOR.translate(fullPath);
-      }
-
-      return fullPath;
+      return fullPath.map((id) => $dataMapInfos[id].name).join(" / ");
     },
 
     getMapAncestors(id, path) {

@@ -1,11 +1,9 @@
-import {ConfirmDialog} from '../js/DialogHelper.js'
-import {TRANSLATOR} from '../js/TranslateHelper.js'
-import {TRANSLATE_SETTINGS} from '../js/TranslateHelper.js'
+import { ConfirmDialog } from "../js/DialogHelper.js";
 
 export default {
-    name: 'SwitchSettingPanel',
+  name: "SwitchSettingPanel",
 
-    template: `
+  template: `
 <v-card flat class="ma-0 pa-0">
     <v-data-table
         v-if="tableHeaders"
@@ -86,115 +84,122 @@ export default {
 </v-card>
     `,
 
-    data () {
+  data() {
+    return {
+      search: "",
+      excludeNameless: true,
+
+      switchNames: [],
+
+      tableHeaders: [
+        {
+          text: "开关名",
+          value: "name",
+        },
+        {
+          text: "值",
+          value: "value",
+        },
+      ],
+      tableItems: [],
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  computed: {
+    filteredTableItems() {
+      return this.tableItems.filter((item) => {
+        if (
+          item.id === 0 ||
+          (this.excludeNameless && !item.name) ||
+          !this.tableItemFilter(item.name, this.search, item)
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+    },
+
+    allSwitchOn() {
+      const hasTurnOff = this.filteredTableItems.find(
+        (item) => item.value === false,
+      );
+      return !!!hasTurnOff;
+    },
+
+    allSwitchIcon() {
+      return this.allSwitchOn ? "mdi-toggle-switch-off" : "mdi-toggle-switch";
+    },
+  },
+
+  methods: {
+    async initializeVariables() {
+      this.switchNames = await this.getSwitchNames();
+
+      this.tableItems = this.switchNames.map((switchName, idx) => {
         return {
-            search: '',
-            excludeNameless: true,
-
-            switchNames: [],
-
-            tableHeaders: [
-                {
-                    text: '开关名',
-                    value: 'name'
-                },
-                {
-                    text: '值',
-                    value: 'value'
-                }
-            ],
-            tableItems: []
-        }
+          id: idx,
+          name: switchName,
+          value: $gameSwitches.value(idx),
+        };
+      });
     },
 
-    created () {
-        this.initializeVariables()
+    async getSwitchNames() {
+      return $dataSystem.switches.slice();
     },
 
-    computed: {
-        filteredTableItems () {
-            return this.tableItems.filter(item => {
-                if (item.id === 0 || (this.excludeNameless && !item.name) || (!this.tableItemFilter(item.name, this.search, item))) {
-                    return false
-                }
+    onItemChange(item) {
+      // modify value
+      $gameSwitches.setValue(item.id, item.value);
 
-                return true
-            })
-        },
-
-        allSwitchOn () {
-            const hasTurnOff = this.filteredTableItems.find((item) => item.value === false)
-            return !!!hasTurnOff
-        },
-
-        allSwitchIcon () {
-            return this.allSwitchOn ? 'mdi-toggle-switch-off' : 'mdi-toggle-switch'
-        }
+      // refresh
+      item.value = $gameSwitches.value(item.id);
     },
 
-    methods: {
-        async initializeVariables () {
-            this.switchNames = await this.getSwitchNames()
+    tableItemFilter(value, search, item) {
+      if (search === null || search.trim() === "") {
+        return true;
+      }
 
-            this.tableItems = this.switchNames.map((switchName, idx) => {
-                return {
-                    id: idx,
-                    name: switchName,
-                    value: $gameSwitches.value(idx)
-                }
-            })
-        },
+      return item.name.toLowerCase().contains(search.toLowerCase());
+    },
 
-        async getSwitchNames () {
-            const rawSwitchNames = $dataSystem.switches.slice()
-
-            if (TRANSLATE_SETTINGS.isSwitchTranslateEnabled()) {
-                return await TRANSLATOR.translateBulk(rawSwitchNames)
-            }
-
-            return rawSwitchNames
-        },
-
-        onItemChange (item) {
-            // modify value
-            $gameSwitches.setValue(item.id, item.value)
-
-            // refresh
-            item.value = $gameSwitches.value(item.id)
-        },
-
-        tableItemFilter (value, search, item) {
-            if (search === null || search.trim() === '') {
-                return true
-            }
-
-            return item.name.toLowerCase().contains(search.toLowerCase())
-        },
-
-        toggleAllSwitches () {
-            const self = this
-            ConfirmDialog.show({
-                width: 450,
-                message: (this.allSwitchOn ? 'Turn off all filtered switches?' : 'Turn on all filtered switches?') + '\n(CAUTION: Potential to give fatal errors to save data)',
-                actions: [{
-                    icon: 'mdi-close',
-                    label: 'cancel',
-                    color: 'white',
-                    action: ConfirmDialog.close
-                }, {
-                    icon: this.allSwitchIcon,
-                    color: 'green',
-                    label: this.allSwitchOn ? 'Turn Off' : 'Turn On',
-                    async action () {
-                        const value = !self.allSwitchOn
-                        self.filteredTableItems.forEach(item => {
-                            $gameSwitches.setValue(item.id, value)
-                        })
-                        self.initializeVariables()
-                        ConfirmDialog.close()
-                    }
-                }]
-            })
-        }
-    }
-}
+    toggleAllSwitches() {
+      const self = this;
+      ConfirmDialog.show({
+        width: 450,
+        message:
+          (this.allSwitchOn
+            ? "Turn off all filtered switches?"
+            : "Turn on all filtered switches?") +
+          "\n(CAUTION: Potential to give fatal errors to save data)",
+        actions: [
+          {
+            icon: "mdi-close",
+            label: "cancel",
+            color: "white",
+            action: ConfirmDialog.close,
+          },
+          {
+            icon: this.allSwitchIcon,
+            color: "green",
+            label: this.allSwitchOn ? "Turn Off" : "Turn On",
+            async action() {
+              const value = !self.allSwitchOn;
+              self.filteredTableItems.forEach((item) => {
+                $gameSwitches.setValue(item.id, value);
+              });
+              self.initializeVariables();
+              ConfirmDialog.close();
+            },
+          },
+        ],
+      });
+    },
+  },
+};

@@ -1,10 +1,7 @@
-import {TRANSLATE_SETTINGS, TRANSLATOR} from '../js/TranslateHelper.js'
-import {Alert} from '../js/AlertHelper.js'
-
 export default {
-    name: 'TeleportPanel',
+  name: "TeleportPanel",
 
-    template: `
+  template: `
 <v-card flat class="ma-0 pa-0">
     <v-row>
         <v-col
@@ -89,105 +86,107 @@ export default {
 </v-card>
     `,
 
-    data () {
-        return {
-            inputX: '0',
-            inputY: '0',
+  data() {
+    return {
+      inputX: "0",
+      inputY: "0",
 
-            search: '',
-            excludeFullPath: true,
+      search: "",
+      excludeFullPath: true,
 
-            maps: [],
+      maps: [],
 
-            tableHeaders: [
-                {
-                    text: 'ID',
-                    value: 'id'
-                },
-                {
-                    text: '名称',
-                    value: 'name'
-                },
-                {
-                    text: '完整路径',
-                    value: 'fullPath'
-                },
-                {
-                    text: '操作',
-                    value: 'actions'
-                }
-            ]
-        }
+      tableHeaders: [
+        {
+          text: "ID",
+          value: "id",
+        },
+        {
+          text: "名称",
+          value: "name",
+        },
+        {
+          text: "完整路径",
+          value: "fullPath",
+        },
+        {
+          text: "操作",
+          value: "actions",
+        },
+      ],
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  computed: {
+    filteredTableHeaders() {
+      if (this.excludeFullPath) {
+        return this.tableHeaders.filter(
+          (header) => header.value !== "fullPath",
+        );
+      }
+
+      return this.tableHeaders;
+    },
+  },
+
+  methods: {
+    async initializeVariables() {
+      const rawDataMapInfos = $dataMapInfos.filter((mapInfo) => !!mapInfo);
+      const mapNames = await this.getMapNames($dataMapInfos);
+
+      this.maps = $dataMapInfos
+        .filter((mapInfo) => !!mapInfo)
+        .map((mapInfo) => {
+          let fullPath = [];
+
+          this.getMapAncestors(mapInfo.id, fullPath);
+          fullPath = fullPath.map((id) => mapNames[id]);
+
+          return {
+            _mapInfo: mapInfo,
+            id: mapInfo.id,
+            fullPath: fullPath,
+            fullPathJoin: fullPath.join(" / "),
+            name: mapNames[mapInfo.id],
+          };
+        });
     },
 
-    created () {
-        this.initializeVariables()
+    async getMapNames(dataMapInfos) {
+      return dataMapInfos.map((m) => (m ? m.name : ""));
     },
 
-    computed: {
-        filteredTableHeaders () {
-            if (this.excludeFullPath) {
-                return this.tableHeaders.filter(header => header.value !== 'fullPath')
-            }
+    getMapAncestors(id, path) {
+      path.push(id);
+      if ($dataMapInfos[id].parentId === 0) {
+        path.reverse();
+        return;
+      }
 
-            return this.tableHeaders
-        }
+      this.getMapAncestors($dataMapInfos[id].parentId, path);
     },
 
-    methods: {
-        async initializeVariables () {
-            const rawDataMapInfos = $dataMapInfos.filter(mapInfo => !!mapInfo)
-            const mapNames = await this.getMapNames($dataMapInfos)
+    teleportLocation(mapId, x, y) {
+      $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
+      $gamePlayer.setPosition(x, y);
+    },
 
-            this.maps = $dataMapInfos.filter(mapInfo => !!mapInfo).map(mapInfo => {
-                let fullPath = []
+    tableItemFilter(value, search, item) {
+      if (search === null || search.trim() === "") {
+        return true;
+      }
 
-                this.getMapAncestors(mapInfo.id, fullPath)
-                fullPath = fullPath.map(id => mapNames[id])
+      search = search.toLowerCase();
 
-                return {
-                    _mapInfo: mapInfo,
-                    id: mapInfo.id,
-                    fullPath: fullPath,
-                    fullPathJoin: fullPath.join(' / '),
-                    name: mapNames[mapInfo.id],
-                }
-            })
-        },
-
-        async getMapNames (dataMapInfos) {
-            const rawNames = dataMapInfos.map(m => m ? m.name : '')
-
-            if (TRANSLATE_SETTINGS.isMapTranslateEnabled()) {
-                return await TRANSLATOR.translateBulk(rawNames)
-            }
-
-            return rawNames
-        },
-
-        getMapAncestors (id, path) {
-            path.push(id)
-            if ($dataMapInfos[id].parentId === 0) {
-                path.reverse()
-                return
-            }
-
-            this.getMapAncestors($dataMapInfos[id].parentId, path)
-        },
-
-        teleportLocation (mapId, x, y) {
-            $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
-            $gamePlayer.setPosition(x, y);
-        },
-
-        tableItemFilter (value, search, item) {
-            if (search === null || search.trim() === '') {
-                return true
-            }
-
-            search = search.toLowerCase()
-
-            return item.name.toLowerCase().contains(search) || item.fullPathJoin.toLowerCase().contains(search) || String(item.id).toLowerCase().contains(search)
-        }
-    }
-}
+      return (
+        item.name.toLowerCase().contains(search) ||
+        item.fullPathJoin.toLowerCase().contains(search) ||
+        String(item.id).toLowerCase().contains(search)
+      );
+    },
+  },
+};
