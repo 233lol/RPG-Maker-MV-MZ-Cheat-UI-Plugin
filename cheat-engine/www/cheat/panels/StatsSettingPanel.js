@@ -1,9 +1,9 @@
-import {GeneralCheat} from '../js/CheatHelper.js'
+import { GeneralCheat } from "../js/CheatHelper.js";
 
 export default {
-    name: 'StatsSettingPanel',
+  name: "StatsSettingPanel",
 
-    template: `
+  template: `
 <v-card flat class="ma-0 pa-0">
     <v-tabs
         v-model="selectedTab"
@@ -100,63 +100,65 @@ export default {
 </v-card>
     `,
 
-    data () {
-        return {
-            selectedTab: null,
-            paramNames: [], // name of stats (Max HP, ATK, ...)
-            actors: []
-        }
+  data() {
+    return {
+      selectedTab: null,
+      paramNames: [], // name of stats (Max HP, ATK, ...)
+      actors: [],
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  methods: {
+    extractActorData(actor) {
+      // get actor param
+      const paramSize = actor._paramPlus.length;
+      const param = new Array(paramSize);
+
+      for (let paramId = 0; paramId < paramSize; ++paramId) {
+        param[paramId] = actor.param(paramId);
+      }
+
+      return {
+        _actor: actor,
+        id: actor._actorId,
+        name: actor._name,
+        godMode: GeneralCheat.isGodMode(actor),
+        level: actor.level,
+        exp: actor.currentExp(), // actor._exp contains exp data for each class (_exp[classId] = exp)
+        param: param,
+      };
     },
 
-    created () {
-        this.initializeVariables()
+    initializeVariables() {
+      this.paramNames = $dataSystem.terms.params;
+      this.actors = $gameParty
+        .members()
+        .map((actor) => this.extractActorData(actor));
     },
 
-    methods: {
-        extractActorData (actor) {
-            // get actor param
-            const paramSize = actor._paramPlus.length
-            const param = new Array(paramSize)
+    onLevelChange(item) {
+      item._actor.changeLevel(Number(item.level), false);
+      this.initializeVariables();
+    },
 
-            for (let paramId = 0; paramId < paramSize; ++paramId) {
-                param[paramId] = actor.param(paramId)
-            }
+    onExpChange(item) {
+      item._actor.changeExp(Number(item.exp), false);
+      this.initializeVariables();
+    },
 
-            return {
-                _actor: actor,
-                id: actor._actorId,
-                name: actor._name,
-                godMode: GeneralCheat.isGodMode(actor),
-                level: actor.level,
-                exp: actor.currentExp(), // actor._exp contains exp data for each class (_exp[classId] = exp)
-                param: param
-            }
-        },
+    onParamChange(item, paramIndex) {
+      const diff = item.param[paramIndex] - item._actor.param(paramIndex);
+      item._actor.addParam(paramIndex, diff);
+      this.initializeVariables();
+    },
 
-        initializeVariables () {
-            this.paramNames = $dataSystem.terms.params
-            this.actors = $gameParty.members().map(actor => this.extractActorData(actor))
-        },
-
-        onLevelChange (item) {
-            item._actor.changeLevel(Number(item.level), false)
-            this.initializeVariables()
-        },
-
-        onExpChange (item) {
-            item._actor.changeExp(Number(item.exp), false)
-            this.initializeVariables()
-        },
-
-        onParamChange (item, paramIndex) {
-            const diff = item.param[paramIndex] - item._actor.param(paramIndex)
-            item._actor.addParam(paramIndex, diff)
-            this.initializeVariables()
-        },
-
-        onGodModeChange (item) {
-            GeneralCheat.toggleGodMode(item._actor)
-            this.initializeVariables()
-        }
-    }
-}
+    onGodModeChange(item) {
+      GeneralCheat.toggleGodMode(item._actor);
+      this.initializeVariables();
+    },
+  },
+};

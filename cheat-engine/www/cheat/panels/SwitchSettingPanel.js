@@ -1,4 +1,5 @@
 import { ConfirmDialog } from "../js/DialogHelper.js";
+import { KeyValueStorage } from "../js/KeyValueStorage.js";
 
 export default {
   name: "SwitchSettingPanel",
@@ -47,6 +48,21 @@ export default {
                         </v-btn>
                     </template>
                 </v-tooltip>
+                      <v-tooltip bottom>
+                        <span>{{ allFilteredLocked ? '解锁所有过滤项' : '锁定所有过滤项' }}</span>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            color="amber"
+                            class="ml-2"
+                            v-bind="attrs"
+                            v-on="on"
+                            fab
+                            x-small
+                            @click="toggleAllFilteredLocks">
+                            <v-icon>{{ allFilteredLocked ? 'mdi-lock-open-variant' : 'mdi-lock' }}</v-icon>
+                          </v-btn>
+                        </template>
+                      </v-tooltip>
             </div>
         </template>
         <template
@@ -59,6 +75,15 @@ export default {
                 @change="onItemChange(item)">
             </v-switch>
         </template>
+            <template v-slot:item.lock="{ item }">
+              <v-btn
+                icon
+                x-small
+                :color="item.lockEnabled ? 'amber' : 'grey lighten-1'"
+                @click.stop="toggleItemLock(item)">
+                <v-icon>{{ item.lockEnabled ? 'mdi-lock' : 'mdi-lock-open-variant' }}</v-icon>
+              </v-btn>
+            </template>
     </v-data-table>
     
     <v-tooltip
@@ -100,13 +125,32 @@ export default {
           text: "值",
           value: "value",
         },
+        {
+          text: "锁定",
+          value: "lock",
+          sortable: false,
+          width: 72,
+        },
       ],
       tableItems: [],
+      lockUpdateTimer: null,
+      lockUpdateIntervalMs: 2500,
+      lockStorage: null,
+      persistedLockMap: {},
     };
   },
 
   created() {
+    this.lockStorage = new KeyValueStorage(
+      "./www/cheat-settings/switch-locks.json",
+    );
+    this.readPersistedLocks();
     this.initializeVariables();
+    this.startLockUpdater();
+  },
+
+  beforeDestroy() {
+    this.stopLockUpdater();
   },
 
   computed: {
@@ -134,17 +178,35 @@ export default {
     allSwitchIcon() {
       return this.allSwitchOn ? "mdi-toggle-switch-off" : "mdi-toggle-switch";
     },
+
+    allFilteredLocked() {
+      const lockableItems = this.filteredTableItems.filter(
+        (item) => item.id > 0,
+      );
+      if (lockableItems.length === 0) {
+        return false;
+      }
+
+      return lockableItems.every((item) => !!item.lockEnabled);
+    },
   },
 
   methods: {
     async initializeVariables() {
+      const previousLockMap = this.getLockMapById();
       this.switchNames = await this.getSwitchNames();
 
       this.tableItems = this.switchNames.map((switchName, idx) => {
+        const savedLock = previousLockMap.get(idx);
         return {
           id: idx,
           name: switchName,
           value: $gameSwitches.value(idx),
+          lockEnabled: savedLock ? savedLock.lockEnabled : false,
+          lockValue:
+            savedLock && typeof savedLock.lockValue === "boolean"
+              ? savedLock.lockValue
+              : $gameSwitches.value(idx),
         };
       });
     },
@@ -153,12 +215,145 @@ export default {
       return $dataSystem.switches.slice();
     },
 
+    readPersistedLocks() {
+      try {
+        const raw = this.lockStorage.getItem("data");
+        if (!raw) {
+          this.persistedLockMap = {};
+          return;
+        }
+
+        const data = JSON.parse(raw);
+        this.persistedLockMap = data && typeof data === "object" ? data : {};
+      } catch (error) {
+        this.persistedLockMap = {};
+      }
+    },
+
+    writePersistedLocks() {
+      const payload = {};
+      this.tableItems.forEach((item) => {
+        if (!item.lockEnabled || item.id <= 0) {
+          return;
+        }
+
+        payload[item.id] = {
+          lockEnabled: true,
+          lockValue: !!item.lockValue,
+        };
+      });
+
+      this.persistedLockMap = payload;
+      this.lockStorage.setItem("data", JSON.stringify(payload));
+    },
+
     onItemChange(item) {
       // modify value
       $gameSwitches.setValue(item.id, item.value);
 
       // refresh
       item.value = $gameSwitches.value(item.id);
+      if (item.lockEnabled) {
+        item.lockValue = item.value;
+        this.writePersistedLocks();
+      }
+    },
+
+    toggleItemLock(item) {
+      item.lockEnabled = !item.lockEnabled;
+      if (item.lockEnabled) {
+        item.lockValue = !!$gameSwitches.value(item.id);
+        this.applySwitchLock(item);
+      }
+
+      this.writePersistedLocks();
+    },
+
+    toggleAllFilteredLocks() {
+      const targetLockEnabled = !this.allFilteredLocked;
+
+      this.filteredTableItems.forEach((item) => {
+        if (item.id <= 0) {
+          return;
+        }
+
+        item.lockEnabled = targetLockEnabled;
+        if (targetLockEnabled) {
+          item.lockValue = !!$gameSwitches.value(item.id);
+          this.applySwitchLock(item);
+        }
+      });
+
+      this.writePersistedLocks();
+    },
+
+    applySwitchLock(item) {
+      if (!item || !item.lockEnabled) {
+        return;
+      }
+
+      const currentValue = !!$gameSwitches.value(item.id);
+      const lockValue = !!item.lockValue;
+      if (currentValue !== lockValue) {
+        $gameSwitches.setValue(item.id, lockValue);
+      }
+      item.value = !!$gameSwitches.value(item.id);
+    },
+
+    applyAllSwitchLocks() {
+      this.tableItems.forEach((item) => {
+        if (item.id > 0 && item.lockEnabled) {
+          this.applySwitchLock(item);
+        }
+      });
+    },
+
+    startLockUpdater() {
+      if (this.lockUpdateTimer) {
+        return;
+      }
+
+      this.lockUpdateTimer = window.setInterval(() => {
+        this.applyAllSwitchLocks();
+      }, this.lockUpdateIntervalMs);
+    },
+
+    stopLockUpdater() {
+      if (!this.lockUpdateTimer) {
+        return;
+      }
+
+      window.clearInterval(this.lockUpdateTimer);
+      this.lockUpdateTimer = null;
+    },
+
+    getLockMapById() {
+      const map = new Map();
+
+      if (this.tableItems.length > 0) {
+        this.tableItems.forEach((item) => {
+          map.set(item.id, {
+            lockEnabled: !!item.lockEnabled,
+            lockValue: !!item.lockValue,
+          });
+        });
+        return map;
+      }
+
+      Object.keys(this.persistedLockMap || {}).forEach((idText) => {
+        const id = Number(idText);
+        if (!Number.isInteger(id)) {
+          return;
+        }
+
+        const lockItem = this.persistedLockMap[idText] || {};
+        map.set(id, {
+          lockEnabled: !!lockItem.lockEnabled,
+          lockValue: !!lockItem.lockValue,
+        });
+      });
+
+      return map;
     },
 
     tableItemFilter(value, search, item) {
@@ -166,7 +361,9 @@ export default {
         return true;
       }
 
-      return item.name.toLowerCase().contains(search.toLowerCase());
+      return String(item.name || "")
+        .toLowerCase()
+        .includes(search.toLowerCase());
     },
 
     toggleAllSwitches() {
@@ -193,7 +390,12 @@ export default {
               const value = !self.allSwitchOn;
               self.filteredTableItems.forEach((item) => {
                 $gameSwitches.setValue(item.id, value);
+                item.value = value;
+                if (item.lockEnabled) {
+                  item.lockValue = value;
+                }
               });
+              self.writePersistedLocks();
               self.initializeVariables();
               ConfirmDialog.close();
             },

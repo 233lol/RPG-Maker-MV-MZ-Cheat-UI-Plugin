@@ -1,7 +1,7 @@
 export default {
-    name: 'HealthSettingTab',
+  name: "HealthSettingTab",
 
-    template: `
+  template: `
 <div>
     <v-data-table
         v-if="tableHeaders"
@@ -51,59 +51,59 @@ export default {
 </div>
     `,
 
-    data () {
-        return {
-            tableHeaders: [
-                {
-                    text: '名字',
-                    value: 'name',
-                },
-                {
-                    text: 'HP',
-                    value: 'hp'
-                },
-                {
-                    text: 'MP',
-                    value: 'mp'
-                }
-            ],
+  data() {
+    return {
+      tableHeaders: [
+        {
+          text: "名字",
+          value: "name",
+        },
+        {
+          text: "HP",
+          value: "hp",
+        },
+        {
+          text: "MP",
+          value: "mp",
+        },
+      ],
 
-            editingItems: [],
-        }
+      editingItems: [],
+    };
+  },
+
+  props: {
+    items: {
+      type: Array,
+      default: [],
     },
+  },
 
-    props: {
-        items: {
-            type: Array,
-            default: []
-        }
+  watch: {
+    items: {
+      immediate: true,
+      handler() {
+        this.editingItems = this.items.map((member) => {
+          return {
+            _member: member,
+            name: member.name(),
+            hp: {
+              hp: member.hp,
+              mhp: member.mhp,
+            },
+            mp: {
+              mp: member.mp,
+              mmp: member.mmp,
+            },
+          };
+        });
+      },
     },
+  },
 
-    watch: {
-        items: {
-            immediate: true,
-            handler () {
-                this.editingItems = this.items.map((member) => {
-                    return {
-                        _member: member,
-                        name: member.name(),
-                        hp: {
-                            hp: member.hp,
-                            mhp: member.mhp,
-                        },
-                        mp: {
-                            mp: member.mp,
-                            mmp: member.mmp
-                        }
-                    }
-                })
-            }
-        }
+  methods: {
+    onDataChange() {
+      this.$emit("change", this.editingItems);
     },
-
-    methods: {
-        onDataChange () {
-            this.$emit('change', this.editingItems)
-        }
-    }
-}
+  },
+};

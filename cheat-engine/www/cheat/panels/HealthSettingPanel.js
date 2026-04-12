@@ -1,14 +1,14 @@
-import HealthSettingTab from './HealthSettingTab.js'
-import {BattleCheat} from '../js/CheatHelper.js'
+import HealthSettingTab from "./HealthSettingTab.js";
+import { BattleCheat } from "../js/CheatHelper.js";
 
 export default {
-    name: 'HealthSettingPanel',
+  name: "HealthSettingPanel",
 
-    components: {
-        HealthSettingTab
-    },
+  components: {
+    HealthSettingTab,
+  },
 
-    template: `
+  template: `
 <v-card 
     class="ma-0 pa-0"
     flat>
@@ -91,87 +91,87 @@ export default {
 </v-card>
     `,
 
-    data () {
-        return {
-            disableRandomEncounter: false,
-            enemy: [],
-            party: []
-        }
+  data() {
+    return {
+      disableRandomEncounter: false,
+      enemy: [],
+      party: [],
+    };
+  },
+
+  created() {
+    this.initializeVariables();
+  },
+
+  methods: {
+    initializeVariables() {
+      this.enemy = $gameTroop.members().map((member) => member);
+      this.party = $gameParty.members().map((member) => member);
+      this.disableRandomEncounter = BattleCheat.isDisableRandomEncounter();
     },
 
-    created () {
-        this.initializeVariables()
+    recoverAllEnemy() {
+      BattleCheat.recoverAllEnemy();
+      this.initializeVariables();
     },
 
-    methods: {
-        initializeVariables () {
-            this.enemy = $gameTroop.members().map(member => member)
-            this.party = $gameParty.members().map(member => member)
-            this.disableRandomEncounter = BattleCheat.isDisableRandomEncounter()
-        },
+    recoverAllParty() {
+      BattleCheat.recoverAllParty();
+      this.initializeVariables();
+    },
 
-        recoverAllEnemy () {
-            BattleCheat.recoverAllEnemy()
-            this.initializeVariables()
-        },
+    fillTpAllEnemy() {
+      BattleCheat.fillTpAllEnemy();
+      this.initializeVariables();
+    },
 
-        recoverAllParty () {
-            BattleCheat.recoverAllParty()
-            this.initializeVariables()
-        },
+    fillTpAllParty() {
+      BattleCheat.fillTpAllParty();
+      this.initializeVariables();
+    },
 
-        fillTpAllEnemy () {
-            BattleCheat.fillTpAllEnemy()
-            this.initializeVariables()
-        },
+    changeAllEnemyHealth(newHp) {
+      BattleCheat.changeAllEnemyHealth(newHp);
+      this.initializeVariables();
+    },
 
-        fillTpAllParty () {
-            BattleCheat.fillTpAllParty()
-            this.initializeVariables()
-        },
+    changeAllPartyHealth(newHp) {
+      BattleCheat.changeAllPartyHealth(newHp);
+      this.initializeVariables();
+    },
 
-        changeAllEnemyHealth (newHp) {
-            BattleCheat.changeAllEnemyHealth(newHp)
-            this.initializeVariables()
-        },
+    encounterBattle() {
+      BattleCheat.encounterBattle();
+    },
 
-        changeAllPartyHealth (newHp) {
-            BattleCheat.changeAllPartyHealth(newHp)
-            this.initializeVariables()
-        },
+    victory() {
+      BattleCheat.victory();
+    },
 
-        encounterBattle () {
-            BattleCheat.encounterBattle()
-        },
+    defeat() {
+      BattleCheat.defeat();
+    },
 
-        victory () {
-            BattleCheat.victory()
-        },
+    escape() {
+      BattleCheat.escape();
+    },
 
-        defeat () {
-            BattleCheat.defeat()
-        },
+    abort() {
+      BattleCheat.abort();
+    },
 
-        escape () {
-            BattleCheat.escape()
-        },
+    onDisableRandomEncounterChange() {
+      BattleCheat.toggleDisableRandomEncounter();
+      this.initializeVariables();
+    },
 
-        abort () {
-            BattleCheat.abort()
-        },
-
-        onDisableRandomEncounterChange () {
-            BattleCheat.toggleDisableRandomEncounter()
-            this.initializeVariables()
-        },
-
-        onDetailChange (items) {
-            for (const item of items) {
-                const member = item._member
-                member.setHp(Number(item.hp.hp))
-                member.setMp(Number(item.mp.mp))
-            }
-            this.initializeVariables()
-        }
-    }
-}
+    onDetailChange(items) {
+      for (const item of items) {
+        const member = item._member;
+        member.setHp(Number(item.hp.hp));
+        member.setMp(Number(item.mp.mp));
+      }
+      this.initializeVariables();
+    },
+  },
+};
