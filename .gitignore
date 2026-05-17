@@ -1,2 +1,4 @@
 .idea/
 venv/
+.history
+node_modules
