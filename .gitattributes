@@ -1,1 +1,3 @@
-cheat-engine/www/cheat/libs/* linguist-vendored
+cheat-engine/www/cheat/libs/*         linguist-vendored
+cheat-engine/www/cheat/css/*          linguist-vendored
+cheat-engine/www/cheat/css/main.css  -linguist-vendored
