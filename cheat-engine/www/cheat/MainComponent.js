@@ -57,8 +57,7 @@ export default {
 
     window.addEventListener("keydown", this.onGlobalKeyDown);
     window.addEventListener("keyup", this.onGlobalKeyUp);
-
-    this.checkVersion();
+    
   },
 
   beforeDestroy() {
@@ -117,30 +116,6 @@ export default {
 
       // open
       this.show = true;
-    },
-
-    async checkVersion() {
-      const currSHA = this.getCurrentCheatVersion();
-      try {
-        const pubSHA = await fetch(
-          "https://api.github.com/repos/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/commits/main",
-        )
-          .then((d) => d.json())
-          .then((d) => d.sha.slice(0, 7));
-        Alert.info(
-          `Cheat ${currSHA} loaded. Toggle with ${GLOBAL_SHORTCUT.getShortcut("toggleCheatModal").asString()}`,
-          null,
-          3000,
-        );
-        if (currSHA !== pubSHA)
-          Alert.warn(
-            `Commit mismatch: ${currSHA}/${pubSHA} (Remote)`,
-            null,
-            3000,
-          );
-      } catch (err) {
-        Alert.error("Update unavailable", err, 3000);
-      }
     },
 
     getCurrentCheatVersion() {
