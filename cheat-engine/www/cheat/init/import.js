@@ -4,7 +4,7 @@ function validateNwjsVersion() {
   }
 
   const nwjsVersion = process.versions["node-webkit"];
-  const minRequiredNwjsVersion = "0.26.4";
+  const minRequiredNwjsVersion = "0.44.0";
 
   const currentVersion = nwjsVersion.split(".");
   const minVersion = minRequiredNwjsVersion.split(".");
