@@ -57,7 +57,10 @@ export default {
 
     window.addEventListener("keydown", this.onGlobalKeyDown);
     window.addEventListener("keyup", this.onGlobalKeyUp);
-    
+  },
+
+  mounted() {
+    this.checkVersion();
   },
 
   beforeDestroy() {
@@ -116,6 +119,14 @@ export default {
 
       // open
       this.show = true;
+    },
+
+    checkVersion() {
+      Alert.info(
+        `Cheat ${this.getCurrentCheatVersion()} loaded. Toggle with ${GLOBAL_SHORTCUT.getShortcut("toggleCheatModal").asString()}, F12 to access devconsole`,
+        null,
+        3000,
+      );
     },
 
     getCurrentCheatVersion() {

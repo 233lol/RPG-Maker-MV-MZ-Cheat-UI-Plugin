@@ -8,6 +8,7 @@ import {
 
 import interpretCodes from "../js/eventCodes.js";
 import { codeToHtml } from "../libs/shiki.bundle.mjs";
+import { RPGVERSION } from "../version.js";
 
 export default {
   name: "GeneralPanel",
@@ -244,6 +245,18 @@ export default {
             </v-btn>
         </template>
     </v-tooltip>
+
+    <v-card-text class="pt-2 pb-2 text-caption grey--text text--lighten-1 text-center">
+        <a
+            :href="versionUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="grey--text text--lighten-1"
+            style="text-decoration: none;"
+            @click="openVersionLink">
+            {{ versionLabel }}
+        </a>
+    </v-card-text>
 </v-card>
     `,
 
@@ -720,11 +733,24 @@ export default {
 
       this.onGameSpeedChange();
     },
+
+    openVersionLink(e) {
+      e.preventDefault();
+      nw.Shell.openExternal(this.versionUrl);
+    },
   },
 
   computed: {
     replOutputText() {
       return this.replOutputEntries.join("\n");
+    },
+
+    versionLabel() {
+      return `Commit ${RPGVERSION}`;
+    },
+
+    versionUrl() {
+      return `https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/commit/${RPGVERSION}`;
     },
   },
 };
