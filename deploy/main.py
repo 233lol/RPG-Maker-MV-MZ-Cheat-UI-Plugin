@@ -1,9 +1,9 @@
+import argparse
+from enum import Enum
+import json
 import os
 import shutil
-from enum import Enum
 import zipfile
-import argparse
-import json
 
 
 class GameTypes(Enum):
@@ -39,7 +39,9 @@ class Paths:
     def __init__(self):
         self.temp_root_path = 'tmp'
 
-        self.origin = CheatPaths('../cheat-engine/www')
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        cheat_engine_path = os.path.join(repo_root, 'cheat-engine', 'www')
+        self.origin = CheatPaths(cheat_engine_path)
         self.temp = CheatPaths(os.path.join(self.temp_root_path, 'www'))
 
         self.deploy_output_dir = 'output'
@@ -95,13 +97,16 @@ if __name__ == '__main__':
 
     paths = Paths()
 
+    if os.path.exists(paths.temp_root_path):
+        shutil.rmtree(paths.temp_root_path)
+
     for game_type in GameTypes:
         # copy js sources to temp directory
         shutil.copytree(paths.origin.root_dir, paths.temp.root_dir)
 
         # merge cheat sources
         merge_directory(
-            os.path.join(paths.temp.get_initialize_path(game_type), os.path.basename(paths.temp.get_cheat_source_path())),
+            paths.temp.get_initialize_path(game_type),
             paths.temp.get_cheat_source_path())
 
         # copy js
@@ -113,9 +118,10 @@ if __name__ == '__main__':
         shutil.rmtree(paths.temp.get_initialize_path())
 
         # compress to zip file
-        shutil.rmtree(os.path.join(paths.temp.root_dir, '.idea'))
+        if os.path.exists(os.path.join(paths.temp.root_dir, '.idea')):
+            shutil.rmtree(os.path.join(paths.temp.root_dir, '.idea'))
         create_cheat_version_file(args.version, paths)
-        shutil.make_archive(paths.get_output_file_path(game_type, args.version), 'gztar', paths.temp.root_dir)
+        shutil.make_archive(paths.get_output_file_path(game_type, args.version), 'zip', paths.temp.root_dir)
 
         # remove temp directory
         shutil.rmtree(paths.temp_root_path)

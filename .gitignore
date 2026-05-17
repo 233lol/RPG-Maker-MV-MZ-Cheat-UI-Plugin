@@ -2,3 +2,4 @@
 venv/
 .history
 node_modules
+deploy/output
