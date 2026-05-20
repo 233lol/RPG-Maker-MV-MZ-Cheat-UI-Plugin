@@ -1,5 +1,7 @@
 mv-*.tar.gz
 mz-*.tar.gz
+mv-*.tar.xz
+mz-*.tar.xz
 cheat-version-description.json
 node_modules/
 cheat-engine/www/cheat/version.js

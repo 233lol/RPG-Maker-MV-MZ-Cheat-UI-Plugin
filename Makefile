@@ -15,9 +15,10 @@ clean:
 	-rm *.tar.gz $(verfn) $(shiki)
 
 %-$(hash).tar.gz: $(verfn) $(shiki)
-	COPYFILE_DISABLE=1 tar -cavf $@ \
+	GZIP=-9 COPYFILE_DISABLE=1 tar --exclude='*DS_Store' -czvf $@ \
 		-C cheat-engine/www cheat \
 		-C _cheat_initialize/$* js
+	ln -s -f $@ $*-latest.tar.gz
 
 $(type):%:%-$(hash).tar.gz
 	@echo finished packing $@
