@@ -25,6 +25,14 @@ export default {
                 class="ma-0">
                 <v-card-actions
                     class="pa-0">
+                    <v-checkbox
+                        v-model="actor.onlyLearned"
+                        dense
+                        hide-details
+                        label="只显示已学习技能"
+                        @change="onFilterChange">
+                    </v-checkbox>
+                    <v-spacer></v-spacer>
                     <v-tooltip
                         bottom>
                         <span>重新加载游戏数据</span>
@@ -43,16 +51,36 @@ export default {
                     </v-tooltip>
                 </v-card-actions>
 
-                <v-card-subtitle class="pa-0 mt-2">已学习技能</v-card-subtitle>
+                <v-text-field
+                    label="搜索技能..."
+                    solo
+                    background-color="grey darken-3"
+                    v-model="actor.skillSearch"
+                    dense
+                    hide-details
+                    @keydown.self.stop
+                    @focus="$event.target.select()">
+                </v-text-field>
+
                 <v-data-table
                     dense
-                    :headers="learnedSkillHeaders"
-                    :items="actor.learnedSkills"
-                    :items-per-page="3"
-                    no-data-text="尚未学习任何技能">
+                    :headers="skillHeaders"
+                    :items="getFilteredSkills(actor)"
+                    :items-per-page="8"
+                    no-data-text="没有匹配的技能"
+                    class="mt-2">
+                    <template
+                        v-slot:item.isLearned="{ item }">
+                        <v-icon
+                            small
+                            :color="item.isLearned ? 'green' : 'grey darken-2'">
+                            {{item.isLearned ? 'mdi-check-circle' : 'mdi-circle-outline'}}
+                        </v-icon>
+                    </template>
                     <template
                         v-slot:item.actions="{ item }">
                         <v-btn
+                            v-if="item.isLearned"
                             small
                             color="error"
                             dark
@@ -61,31 +89,8 @@ export default {
                             <v-icon small>mdi-close</v-icon>
                             <span class="ml-1">移除</span>
                         </v-btn>
-                    </template>
-                </v-data-table>
-
-                <v-divider class="my-4"></v-divider>
-
-                <v-card-subtitle class="pa-0 mt-2">可学习技能</v-card-subtitle>
-                <v-text-field
-                    label="搜索技能..."
-                    solo
-                    background-color="grey darken-3"
-                    v-model="skillSearch"
-                    dense
-                    hide-details
-                    @keydown.self.stop
-                    @focus="$event.target.select()">
-                </v-text-field>
-                <v-data-table
-                    dense
-                    :headers="allSkillsHeaders"
-                    :items="filteredAllSkills"
-                    :items-per-page="5"
-                    no-data-text="没有可用技能">
-                    <template
-                        v-slot:item.actions="{ item }">
                         <v-btn
+                            v-else
                             small
                             color="success"
                             dark
@@ -107,26 +112,14 @@ export default {
       selectedTab: null,
       actors: [],
       allSkills: [],
-      skillSearch: "",
-      learnedSkillHeaders: [
+      skillHeaders: [
         {
-          text: "名称",
-          value: "name",
-          sortable: true,
-        },
-        {
-          text: "描述",
-          value: "description",
-          sortable: false,
-        },
-        {
-          text: "操作",
-          value: "actions",
+          text: "已学",
+          value: "isLearned",
           sortable: false,
           align: "center",
+          width: "40px",
         },
-      ],
-      allSkillsHeaders: [
         {
           text: "名称",
           value: "name",
@@ -147,23 +140,6 @@ export default {
     };
   },
 
-  computed: {
-    filteredAllSkills() {
-      const search = this.skillSearch.toLowerCase().trim();
-      return this.allSkills.filter((skill) => {
-        // Skip nameless skills
-        if (!skill.name) {
-          return false;
-        }
-        // Apply search filter
-        if (search && !skill.name.toLowerCase().includes(search) && !skill.description.toLowerCase().includes(search)) {
-          return false;
-        }
-        return true;
-      });
-    },
-  },
-
   created() {
     this.initializeVariables();
   },
@@ -180,16 +156,16 @@ export default {
     },
 
     extractActorData(actor) {
-      const learnedSkills = actor.skills().map((skill) => this.extractSkillData(skill));
-      const currentExp = actor.currentExp();
+      const learnedSkillIds = actor.skills().map((s) => s.id);
 
       return {
         _actor: actor,
         id: actor._actorId,
         name: actor._name,
         level: actor.level,
-        exp: currentExp,
-        learnedSkills: learnedSkills,
+        onlyLearned: false,
+        skillSearch: "",
+        learnedSkillIds: learnedSkillIds,
       };
     },
 
@@ -205,6 +181,38 @@ export default {
         .map((actor) => this.extractActorData(actor));
     },
 
+    getFilteredSkills(actor) {
+      const search = (actor.skillSearch || "").toLowerCase().trim();
+
+      return this.allSkills
+        .map((skill) => {
+          const isLearned = actor.learnedSkillIds.includes(skill.id);
+          return {
+            ...skill,
+            isLearned: isLearned,
+          };
+        })
+        .filter((skill) => {
+          // Only learned filter
+          if (actor.onlyLearned && !skill.isLearned) {
+            return false;
+          }
+          // Search filter
+          if (
+            search &&
+            !skill.name.toLowerCase().includes(search) &&
+            !skill.description.toLowerCase().includes(search)
+          ) {
+            return false;
+          }
+          return true;
+        });
+    },
+
+    onFilterChange() {
+      // no-op, reactivity handles it
+    },
+
     addSkill(actor, skillItem) {
       const actorObj = actor._actor;
       const skill = skillItem._skill;
@@ -217,8 +225,8 @@ export default {
       // Learn the skill
       actorObj.learnSkill(skill.id);
 
-      // Refresh the actor's learned skills list
-      actor.learnedSkills = actorObj.skills().map((s) => this.extractSkillData(s));
+      // Refresh the actor's learned skill ids
+      actor.learnedSkillIds = actorObj.skills().map((s) => s.id);
     },
 
     removeSkill(actor, skillItem) {
@@ -228,8 +236,8 @@ export default {
       // Forget the skill
       actorObj.forgetSkill(skill.id);
 
-      // Refresh the actor's learned skills list
-      actor.learnedSkills = actorObj.skills().map((s) => this.extractSkillData(s));
+      // Refresh the actor's learned skill ids
+      actor.learnedSkillIds = actorObj.skills().map((s) => s.id);
     },
   },
 };
