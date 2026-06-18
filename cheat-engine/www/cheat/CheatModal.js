@@ -4,6 +4,7 @@ import StatsSettingPanel from './panels/StatsSettingPanel.js'
 import ItemSettingPanel from './panels/ItemSettingPanel.js'
 import WeaponSettingPanel from './panels/WeaponSettingPanel.js'
 import ArmorSettingPanel from './panels/ArmorSettingPanel.js'
+import SkillSettingPanel from './panels/SkillSettingPanel.js'
 import VariableSettingPanel from './panels/VariableSettingPanel.js'
 import SwitchSettingPanel from './panels/SwitchSettingPanel.js'
 import SaveRecallPanel from './panels/SaveRecallPanel.js'
@@ -22,6 +23,7 @@ export default {
         ItemSettingPanel,
         WeaponSettingPanel,
         ArmorSettingPanel,
+        SkillSettingPanel,
         VariableSettingPanel,
         SwitchSettingPanel,
         SaveRecallPanel,
@@ -125,6 +127,11 @@ export default {
                           component: 'armor-setting-panel'
                       }
                   ]
+              },
+              {
+                  name: "技能",
+                  icon: "mdi-lightning-bolt",
+                  component: "skill-setting-panel",
               },
               {
                   name: '变量',
