@@ -1,3 +1,7 @@
+.idea/
+venv/
+.history
+deploy/output
 mv-*.tar.gz
 mz-*.tar.gz
 mv-*.tar.xz
