@@ -1,4 +1,5 @@
 import KeyInputField from "../components/KeyInputField.js";
+import PageJump from "../components/PageJump.js";
 import { GLOBAL_SHORTCUT } from "../js/GlobalShortcut.js";
 import { Key } from "../js/KeyCodes.js";
 import { Alert } from "../js/AlertHelper.js";
@@ -8,6 +9,7 @@ export default {
 
   components: {
     KeyInputField,
+    PageJump,
   },
 
   template: `
@@ -75,7 +77,7 @@ export default {
         :items="filteredShortcuts"
         :search="search"
         :custom-filter="tableItemFilter"
-        :items-per-page="5">
+        :options.sync="pagination">
         <template
             v-slot:item.shortcut="{ item }">
             <key-input-field
@@ -145,6 +147,15 @@ export default {
                 </v-card>
             </td>
         </template>
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+            <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
+            <span class="mx-1">|</span>
+            <page-jump
+                :page="pagination.page"
+                :page-count="pageCount"
+                @jump="jumpToPage">
+            </page-jump>
+        </template>
     </v-data-table>
 </v-card>
     `,
@@ -177,6 +188,7 @@ export default {
           value: "param",
         },
       ],
+      pagination: { page: 1, itemsPerPage: 5 },
     };
   },
 
@@ -199,9 +211,17 @@ export default {
         );
       });
     },
+
+    pageCount() {
+      return Math.ceil(this.filteredShortcuts.length / this.pagination.itemsPerPage) || 1;
+    },
   },
 
   methods: {
+    jumpToPage(page) {
+      this.pagination.page = page;
+    },
+
     restoreToDefault() {
       GLOBAL_SHORTCUT.restoreDefaultSettings();
       this.initializeVariables();

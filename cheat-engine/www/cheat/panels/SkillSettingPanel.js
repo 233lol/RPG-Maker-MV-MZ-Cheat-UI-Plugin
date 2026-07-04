@@ -66,7 +66,7 @@ export default {
                     dense
                     :headers="skillHeaders"
                     :items="getFilteredSkills(actor)"
-                    :items-per-page="8"
+                    :options.sync="actor.pagination"
                     no-data-text="没有匹配的技能"
                     class="mt-2">
                     <template
@@ -99,6 +99,31 @@ export default {
                             <v-icon small>mdi-plus</v-icon>
                             <span class="ml-1">添加</span>
                         </v-btn>
+                    </template>
+                    <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+                        <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
+                        <span class="mx-1">|</span>
+                        <span>
+                            <v-text-field
+                                v-model="actor.jumpPageInput"
+                                type="number"
+                                min="1"
+                                :max="Math.ceil(itemsLength / actor.pagination.itemsPerPage)"
+                                dense
+                                hide-details
+                                class="page-jump-input d-inline-flex"
+                                style="width: 52px;"
+                                @keydown.self.stop
+                                @keydown.enter="jumpToPage(actor, actor.jumpPageInput)"
+                                @focus="$event.target.select()">
+                            </v-text-field>
+                            <v-btn
+                                x-small
+                                icon
+                                @click="jumpToPage(actor, actor.jumpPageInput)">
+                                <v-icon x-small>mdi-arrow-right-bold</v-icon>
+                            </v-btn>
+                        </span>
                     </template>
                 </v-data-table>
             </v-card>
@@ -166,6 +191,8 @@ export default {
         onlyLearned: false,
         skillSearch: "",
         learnedSkillIds: learnedSkillIds,
+        pagination: { page: 1, itemsPerPage: 8 },
+        jumpPageInput: 1,
       };
     },
 
@@ -207,6 +234,17 @@ export default {
           }
           return true;
         });
+    },
+
+    jumpToPage(actor, val) {
+      const page = Number(val);
+      const pageCount = Math.ceil(
+        this.getFilteredSkills(actor).length / actor.pagination.itemsPerPage,
+      );
+      if (page >= 1 && page <= pageCount) {
+        actor.pagination.page = page;
+      }
+      actor.jumpPageInput = actor.pagination.page;
     },
 
     onFilterChange() {

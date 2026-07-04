@@ -1,5 +1,9 @@
+import PageJump from "../components/PageJump.js";
+
 export default {
   name: "ItemTableTab",
+
+  components: { PageJump },
 
   template: `
 <v-card flat class="ma-0 pa-0">
@@ -10,7 +14,7 @@ export default {
         :items="filteredTableItems"
         :search="search"
         :custom-filter="tableItemFilter"
-        :items-per-page="5">
+        :options.sync="pagination">
         <template v-slot:top>
             <v-text-field
                 label="搜索..."
@@ -67,6 +71,15 @@ export default {
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+            <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
+            <span class="mx-1">|</span>
+            <page-jump
+                :page="pagination.page"
+                :page-count="pageCount"
+                @jump="jumpToPage">
+            </page-jump>
+        </template>
     </v-data-table>
     
     <v-tooltip
@@ -99,6 +112,7 @@ export default {
       onlyOwnedItems: false,
       tableHeaders: [],
       tableItems: [],
+      pagination: { page: 1, itemsPerPage: 5 },
     };
   },
 
@@ -140,6 +154,9 @@ export default {
 
         return true;
       });
+    },
+    pageCount() {
+      return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
     },
   },
 
@@ -186,6 +203,10 @@ export default {
       }
 
       return false;
+    },
+
+    jumpToPage(page) {
+      this.pagination.page = page;
     },
   },
 };

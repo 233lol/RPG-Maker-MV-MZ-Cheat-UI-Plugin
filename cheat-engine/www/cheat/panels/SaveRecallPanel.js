@@ -1,7 +1,10 @@
+import PageJump from "../components/PageJump.js";
 import { KEY_VALUE_STORAGE } from "../js/KeyValueStorage.js";
 
 export default {
   name: "SaveRecallPanel",
+
+  components: { PageJump },
 
   template: `
 <v-card flat class="ma-0 pa-0">
@@ -46,7 +49,7 @@ export default {
         :items="tableItems"
         :search="search"
         :custom-filter="tableItemFilter"
-        :items-per-page="5">
+        :options.sync="pagination">
         <template v-slot:top>
             <v-text-field
                 label="搜索..."
@@ -99,6 +102,15 @@ export default {
                     </v-btn>
                 </template>
             </v-tooltip>
+        </template>
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+            <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
+            <span class="mx-1">|</span>
+            <page-jump
+                :page="pagination.page"
+                :page-count="pageCount"
+                @jump="jumpToPage">
+            </page-jump>
         </template>
     </v-data-table>
     
@@ -153,6 +165,7 @@ export default {
           value: "actions",
         },
       ],
+      pagination: { page: 1, itemsPerPage: 5 },
     };
   },
 
@@ -187,9 +200,17 @@ export default {
         return true;
       });
     },
+
+    pageCount() {
+      return Math.ceil(this.tableItems.length / this.pagination.itemsPerPage) || 1;
+    },
   },
 
   methods: {
+    jumpToPage(page) {
+      this.pagination.page = page;
+    },
+
     async initializeVariables() {
       this.loadLocations();
       this.currentMapName = await this.getMapFullPath($gameMap.mapId());

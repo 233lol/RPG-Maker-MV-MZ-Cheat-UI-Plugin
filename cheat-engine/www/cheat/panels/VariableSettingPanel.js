@@ -1,7 +1,10 @@
+import PageJump from "../components/PageJump.js";
 import { KeyValueStorage } from "../js/KeyValueStorage.js";
 
 export default {
   name: "VariableSettingPanel",
+
+  components: { PageJump },
 
   template: `
 <v-card flat class="ma-0 pa-0">
@@ -12,7 +15,7 @@ export default {
         :items="filteredTableItems"
         :search="search"
         :custom-filter="tableItemFilter"
-        :items-per-page="5">
+        :options.sync="pagination">
         <template v-slot:top>
             <v-text-field
                 label="搜索..."
@@ -74,6 +77,15 @@ export default {
                 <v-icon>{{ item.lockEnabled ? 'mdi-lock' : 'mdi-lock-open-variant' }}</v-icon>
             </v-btn>
         </template>
+        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+            <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
+            <span class="mx-1">|</span>
+            <page-jump
+                :page="pagination.page"
+                :page-count="pageCount"
+                @jump="jumpToPage">
+            </page-jump>
+        </template>
     </v-data-table>
     
     <v-tooltip
@@ -123,6 +135,7 @@ export default {
         },
       ],
       tableItems: [],
+      pagination: { page: 1, itemsPerPage: 5 },
       lockUpdateTimer: null,
       lockUpdateIntervalMs: 2500,
       lockStorage: null,
@@ -163,6 +176,10 @@ export default {
       }
 
       return lockableItems.every((item) => !!item.lockEnabled);
+    },
+
+    pageCount() {
+      return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
     },
   },
 
@@ -300,6 +317,10 @@ export default {
 
       window.clearInterval(this.lockUpdateTimer);
       this.lockUpdateTimer = null;
+    },
+
+    jumpToPage(page) {
+      this.pagination.page = page;
     },
 
     getLockMapById() {
