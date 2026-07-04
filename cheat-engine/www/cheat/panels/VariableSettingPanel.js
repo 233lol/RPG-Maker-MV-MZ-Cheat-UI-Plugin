@@ -60,11 +60,11 @@ export default {
                 style="width: 60px;"
                 hide-details
                 solo
-                v-model="item.value"
+                :value="item.value"
                 label="Value"
                 dense
                 @keydown.self.stop
-                @change="onItemChange(item)"
+                @change="onItemChange(item, $event)"
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
@@ -238,11 +238,11 @@ export default {
       this.lockStorage.setItem("data", JSON.stringify(payload));
     },
 
-    onItemChange(item) {
+    onItemChange(item, newValue) {
       const v = $gameVariables.value(item.id);
       typeof v === "number"
-        ? $gameVariables.setValue(item.id, Number(item.value))
-        : $gameVariables.setValue(item.id, item.value);
+        ? $gameVariables.setValue(item.id, Number(newValue))
+        : $gameVariables.setValue(item.id, newValue);
 
       item.value = $gameVariables.value(item.id);
       if (item.lockEnabled) {

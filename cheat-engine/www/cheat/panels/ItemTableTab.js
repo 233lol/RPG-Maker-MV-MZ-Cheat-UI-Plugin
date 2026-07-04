@@ -63,11 +63,11 @@ export default {
                 style="width: 60px;"
                 hide-details
                 solo
-                v-model="item.amount"
+                :value="item.amount"
                 label="Amount"
                 dense
                 @keydown.self.stop
-                @change="onItemChange(item)"
+                @change="onItemChange(item, $event)"
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
@@ -179,9 +179,9 @@ export default {
         });
     },
 
-    onItemChange(item) {
+    onItemChange(item, newValue) {
       // modify amount
-      const diff = item.amount - $gameParty.numItems(item._item);
+      const diff = Number(newValue) - $gameParty.numItems(item._item);
       $gameParty.gainItem(item._item, diff);
 
       // refresh
