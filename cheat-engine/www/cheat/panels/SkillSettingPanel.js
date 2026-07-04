@@ -101,6 +101,7 @@ export default {
                         </v-btn>
                     </template>
                     <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+                        <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
                         <span class="caption mr-1">第{{ actor.pagination.page }}/{{ Math.ceil(itemsLength / actor.pagination.itemsPerPage) }}页</span>
                         <span class="d-inline-flex align-center">
                             <v-text-field

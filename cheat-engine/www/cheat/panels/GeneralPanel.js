@@ -746,7 +746,7 @@ export default {
     },
 
     versionLabel() {
-      return `Commit ${RPGVERSION}, w/ Vue ${Vue.version} and Vuetify ${Vuetify.version}`;
+      return `Commit ${RPGVERSION}, with Vue ${Vue.version} and Vuetify ${Vuetify.version}`;
     },
 
     versionUrl() {

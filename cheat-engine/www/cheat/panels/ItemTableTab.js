@@ -72,6 +72,7 @@ export default {
             </v-text-field>
         </template>
         <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
+            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
             <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
             <page-jump
                 :page="pagination.page"
