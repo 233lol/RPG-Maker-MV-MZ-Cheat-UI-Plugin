@@ -2,7 +2,7 @@ export default {
   name: "PageJump",
 
   template: `
-<span>
+<span class="d-inline-flex align-center">
   <v-text-field
     v-model="inputVal"
     type="number"
@@ -10,8 +10,8 @@ export default {
     :max="pageCount"
     dense
     hide-details
-    class="page-jump-input d-inline-flex"
-    style="width: 52px;"
+    class="page-jump-input"
+    style="width: 38px; margin: 0 1px;"
     @keydown.self.stop
     @keydown.enter="jump"
     @focus="$event.target.select()">
@@ -19,6 +19,7 @@ export default {
   <v-btn
     x-small
     icon
+    class="mx-0"
     @click="jump">
     <v-icon x-small>mdi-arrow-right-bold</v-icon>
   </v-btn>

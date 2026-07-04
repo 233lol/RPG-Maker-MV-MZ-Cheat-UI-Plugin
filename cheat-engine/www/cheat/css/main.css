@@ -30,6 +30,21 @@ body::-webkit-scrollbar {
   min-height: 24px !important;
 }
 
+.v-data-footer {
+  flex-wrap: nowrap !important;
+}
+.v-data-footer__pagination {
+  white-space: nowrap;
+}
+.page-jump-input .v-input__slot {
+  min-height: 20px !important;
+  padding: 0 2px !important;
+}
+.page-jump-input input {
+  padding: 0 2px !important;
+  font-size: 11px !important;
+}
+
 /* z-index */
 .z-index-cheat-0 {
   z-index: 1001 !important;

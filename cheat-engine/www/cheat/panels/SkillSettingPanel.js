@@ -101,9 +101,8 @@ export default {
                         </v-btn>
                     </template>
                     <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-                        <span class="overline">{{ pageStart }}-{{ pageStop }} / {{ itemsLength }}</span>
-                        <span class="mx-1">|</span>
-                        <span>
+                        <span class="caption mr-1">第{{ actor.pagination.page }}/{{ Math.ceil(itemsLength / actor.pagination.itemsPerPage) }}页</span>
+                        <span class="d-inline-flex align-center">
                             <v-text-field
                                 v-model="actor.jumpPageInput"
                                 type="number"
@@ -111,8 +110,8 @@ export default {
                                 :max="Math.ceil(itemsLength / actor.pagination.itemsPerPage)"
                                 dense
                                 hide-details
-                                class="page-jump-input d-inline-flex"
-                                style="width: 52px;"
+                                class="page-jump-input"
+                                style="width: 38px; margin: 0 1px;"
                                 @keydown.self.stop
                                 @keydown.enter="jumpToPage(actor, actor.jumpPageInput)"
                                 @focus="$event.target.select()">
@@ -120,6 +119,7 @@ export default {
                             <v-btn
                                 x-small
                                 icon
+                                class="mx-0"
                                 @click="jumpToPage(actor, actor.jumpPageInput)">
                                 <v-icon x-small>mdi-arrow-right-bold</v-icon>
                             </v-btn>
