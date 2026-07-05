@@ -34,7 +34,7 @@ clean-all: clean
 	-rm -f $(vuetify) $(vue) $(vuetifycss) $(mdicss)
 	-rm -f cheat-engine/www/cheat/fonts/materialdesignicons-webfont.*
 
-%-$(hash).tar.gz: $(verfn) $(shiki)
+%-$(hash).tar.gz: $(verfn) $(shiki) $(vuetify) $(vue) $(vuetifycss) $(mdicss) $(mdifonts)
 	GZIP=-9 COPYFILE_DISABLE=1 tar --exclude='*DS_Store' -czvf $@ \
 		-C cheat-engine/www cheat \
 		-C _cheat_initialize/$* js
