@@ -20,5 +20,5 @@
     "vue": "^3.5.39",
     "vuetify": "^3.12.9"
   },
-  "packageManager": "pnpm@11.8.0"
+  "packageManager": "pnpm@11.10.0"
 }
