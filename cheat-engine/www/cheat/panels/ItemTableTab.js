@@ -12,9 +12,7 @@ export default {
         v-if="tableHeaders"
         density="compact"
         :headers="tableHeaders"
-        :items="filteredTableItems"
-        :search="search"
-         :custom-filter="tableItemFilter"
+         :items="filteredTableItems"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -155,7 +153,7 @@ export default {
 
   computed: {
     filteredTableItems() {
-      return this.tableItems.filter((item) => {
+      let items = this.tableItems.filter((item) => {
         if (this.excludeNameless && !item.name) {
           return false;
         }
@@ -166,6 +164,16 @@ export default {
 
         return true;
       });
+      if (this.search && this.search.trim()) {
+        const s = this.search.toLowerCase();
+        items = items.filter((item) => {
+          for (const attr of this.searchableAttrs) {
+            if (item[attr].toLowerCase().includes(s)) return true;
+          }
+          return false;
+        });
+      }
+      return items;
     },
      totalCount() {
        return this.filteredTableItems.length;
@@ -216,21 +224,6 @@ export default {
     },
 
     onTableFilterChange() {},
-
-    tableItemFilter(value, search, item) {
-      if (search === null || search.trim() === "") {
-        return true;
-      }
-
-      search = search.toLowerCase();
-      for (const attr of this.searchableAttrs) {
-        if (item[attr].toLowerCase().includes(search)) {
-          return true;
-        }
-      }
-
-      return false;
-    },
 
     jumpToPage(page) {
       this.pagination.page = page;

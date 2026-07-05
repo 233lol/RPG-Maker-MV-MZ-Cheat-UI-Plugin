@@ -14,8 +14,6 @@ export default {
         density="compact"
         :headers="tableHeaders"
         :items="filteredTableItems"
-        :search="search"
-         :custom-filter="tableItemFilter"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -400,7 +398,8 @@ export default {
         return true;
       }
 
-      return String(item.name || "")
+      const target = item.raw || item;
+      return String(target.name || "")
         .toLowerCase()
         .includes(search.toLowerCase());
     },

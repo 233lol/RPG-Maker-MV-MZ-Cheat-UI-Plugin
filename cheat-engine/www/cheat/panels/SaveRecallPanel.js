@@ -46,9 +46,7 @@ export default {
         class="mt-2"
         density="compact"
         :headers="tableHeaders"
-        :items="tableItems"
-        :search="search"
-         :custom-filter="tableItemFilter"
+        :items="filteredTableItems"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -201,17 +199,20 @@ export default {
     },
 
     filteredTableItems() {
-      return this.tableItems.filter((item) => {
-        if (this.excludeNameless && !item.name) {
-          return false;
-        }
-
-        return true;
-      });
+      let items = this.tableItems;
+      if (this.search && this.search.trim()) {
+        const s = this.search.toLowerCase();
+        items = items.filter((item) =>
+          item.name.toLowerCase().includes(s) ||
+          item.mapName.toLowerCase().includes(s) ||
+          String(item.value).toLowerCase().includes(s)
+        );
+      }
+      return items;
     },
 
     totalCount() {
-      return this.tableItems.length;
+      return this.filteredTableItems.length;
     },
 
     paginationStart() {
@@ -224,7 +225,7 @@ export default {
     },
 
     pageCount() {
-      return Math.ceil(this.tableItems.length / this.pagination.itemsPerPage) || 1;
+      return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
     },
   },
 
@@ -307,20 +308,6 @@ export default {
     teleportLocation(mapId, x, y) {
       $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
       $gamePlayer.setPosition(x, y);
-    },
-
-    tableItemFilter(value, search, item) {
-      if (search === null || search.trim() === "") {
-        return true;
-      }
-
-      search = search.toLowerCase();
-
-      return (
-        item.name.toLowerCase().includes(search) ||
-        item.mapName.toLowerCase().includes(search) ||
-        String(item.value).toLowerCase().includes(search)
-      );
     },
   },
 };

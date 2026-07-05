@@ -13,8 +13,6 @@ export default {
         density="compact"
         :headers="tableHeaders"
         :items="filteredTableItems"
-        :search="search"
-         :custom-filter="tableItemFilter"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -61,7 +59,7 @@ export default {
                 variant="solo"
                 :model-value="item.value"
                 density="compact"
-                @update:model-value="onItemChange(item, $event)"
+                @change="onItemChange(item, $event.target.value)"
                 @focus="$event.target.select()"
                 @keydown.stop>
             </v-text-field>
@@ -165,13 +163,21 @@ export default {
 
   computed: {
     filteredTableItems() {
-      return this.tableItems.filter((item) => {
+      let items = this.tableItems.filter((item) => {
         if (this.excludeNameless && !item.name) {
           return false;
         }
 
         return true;
       });
+      if (this.search && this.search.trim()) {
+        const s = this.search.toLowerCase();
+        items = items.filter((item) =>
+          String(item.name || "").toLowerCase().includes(s) ||
+          String(item.value).toLowerCase().includes(s)
+        );
+      }
+      return items;
     },
 
     allFilteredLocked() {
@@ -372,16 +378,5 @@ export default {
       return map;
     },
 
-    tableItemFilter(value, search, item) {
-      if (search === null || search.trim() === "") {
-        return true;
-      }
-
-      search = search.toLowerCase();
-      const itemName = String(item.name || "").toLowerCase();
-      const itemValue = String(item.value).toLowerCase();
-
-      return itemName.includes(search) || itemValue.includes(search);
-    },
   },
 };

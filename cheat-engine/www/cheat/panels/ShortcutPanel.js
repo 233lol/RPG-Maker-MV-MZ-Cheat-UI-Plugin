@@ -74,8 +74,6 @@ export default {
         :headers="filteredHeaders"
         v-model:expanded="tableExpanded"
         :items="filteredShortcuts"
-        :search="search"
-         :custom-filter="tableItemFilter"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -219,12 +217,21 @@ export default {
     },
 
     filteredShortcuts() {
-      return this.shortcuts.filter((item) => {
+      let items = this.shortcuts.filter((item) => {
         return (
           this.shortcutSearch.isEmpty() ||
           item.shortcut.contains(this.shortcutSearch)
         );
       });
+      if (this.search && this.search.trim()) {
+        const s = this.search.toLowerCase();
+        items = items.filter((item) =>
+          item.name.toLowerCase().includes(s) ||
+          item.desc.toLowerCase().includes(s) ||
+          item.shortcut.asDisplayString().toLowerCase().includes(s)
+        );
+      }
+      return items;
     },
 
     totalCount() {
@@ -328,17 +335,5 @@ export default {
       );
     },
 
-    tableItemFilter(value, search, item) {
-      if (search === null || search.trim() === "") {
-        return true;
-      }
-
-      search = search.toLowerCase();
-      return (
-        item.name.toLowerCase().includes(search) ||
-        item.desc.toLowerCase().includes(search) ||
-        item.shortcut.asDisplayString().toLowerCase().includes(search)
-      );
-    },
   },
 };

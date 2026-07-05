@@ -45,9 +45,7 @@ export default {
         class="mt-2"
         density="compact"
         :headers="filteredTableHeaders"
-        :items="maps"
-        :search="search"
-         :custom-filter="tableItemFilter"
+        :items="filteredMaps"
          v-model:page="pagination.page"
          v-model:items-per-page="pagination.itemsPerPage"
          :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
@@ -166,8 +164,18 @@ export default {
       return this.tableHeaders;
     },
 
+    filteredMaps() {
+      if (!this.search || !this.search.trim()) return this.maps;
+      const s = this.search.toLowerCase();
+      return this.maps.filter((item) =>
+        item.name.toLowerCase().includes(s) ||
+        item.fullPathJoin.toLowerCase().includes(s) ||
+        String(item.id).toLowerCase().includes(s)
+      );
+    },
+
     totalCount() {
-      return this.maps.length;
+      return this.filteredMaps.length;
     },
 
     paginationStart() {
@@ -180,7 +188,7 @@ export default {
     },
 
     pageCount() {
-      return Math.ceil(this.maps.length / this.pagination.itemsPerPage) || 1;
+      return Math.ceil(this.filteredMaps.length / this.pagination.itemsPerPage) || 1;
     },
   },
 
@@ -228,20 +236,6 @@ export default {
     teleportLocation(mapId, x, y) {
       $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
       $gamePlayer.setPosition(x, y);
-    },
-
-    tableItemFilter(value, search, item) {
-      if (search === null || search.trim() === "") {
-        return true;
-      }
-
-      search = search.toLowerCase();
-
-      return (
-        item.name.toLowerCase().includes(search) ||
-        item.fullPathJoin.toLowerCase().includes(search) ||
-        String(item.id).toLowerCase().includes(search)
-      );
     },
   },
 };
