@@ -87,7 +87,7 @@ make vendor            # 生成全部 vendor 文件
 
 ## CI
 
-GitHub Actions 在推送到 `main` 时自动构建并上传 `.tar.gz` 产物。
+GitHub Actions 在推送到 `main`、`vue-3` 时自动构建并上传 `.tar.gz` 产物。
 
 ## 许可证
 
