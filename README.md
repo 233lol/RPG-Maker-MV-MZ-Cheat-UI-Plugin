@@ -1,20 +1,13 @@
 # RPG-Maker-MV-MZ-Cheat-UI-Plugin
 
-基于 [Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin) 修改而来。
+基于 [Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin) 修改而来。
 
 Vue 2 + Vuetify 2 迁移至 Vue 3 + Vuetify 3。
 
 ## 变化 / 功能
-
-- 事件查看器 (Event Inspector)
-- 调试 REPL
 - Vue 3 + Vuetify 3 重构
 - Makefile 构建系统
 - 诸多 bug 修复
-
-![REPL](./assets/repl.png)
-![event](./assets/eventInspector.png)
-
 ## 构建
 
 ### 前置要求
