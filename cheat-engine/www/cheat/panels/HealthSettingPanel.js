@@ -159,6 +159,7 @@ export default {
     },
 
     onDetailChange(items) {
+      if (!Array.isArray(items)) return;
       for (const item of items) {
         const member = item._member;
         member.setHp(Number(item.hp.hp));

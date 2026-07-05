@@ -18,8 +18,9 @@ export default {
         v-model="locationAliasInput"
         density="compact"
         hide-details
-        @keydown.self.stop="onLocationAliasKeyDown"
-        @focus="$event.target.select()">
+        @keydown="onLocationAliasKeyDown"
+        @focus="$event.target.select()"
+        @keydown.stop>
         <template #append-outer>
             <v-tooltip
                 location="bottom">
@@ -59,8 +60,8 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </template>
         <template

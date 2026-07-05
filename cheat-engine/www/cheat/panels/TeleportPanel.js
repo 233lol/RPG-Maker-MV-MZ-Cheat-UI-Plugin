@@ -19,8 +19,8 @@ export default {
                 bg-color="grey-darken-3"
                 hide-details
                 variant="outlined"
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </v-col>
         <v-col
@@ -34,8 +34,8 @@ export default {
                 bg-color="grey-darken-3"
                 hide-details
                 variant="outlined"
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </v-col>
     </v-row>
@@ -59,8 +59,9 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
-                @focus="$event.target.select()">
+
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
             <v-checkbox
                 v-model="excludeFullPath"

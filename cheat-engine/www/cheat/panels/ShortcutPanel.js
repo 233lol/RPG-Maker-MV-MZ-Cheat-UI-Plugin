@@ -25,9 +25,9 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
                 @update:model-value="onSearchChange"
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </v-col>
         <v-col
@@ -130,10 +130,10 @@ export default {
                                     variant="outlined"
                                     density="compact"
                                     hide-details
-                                    @keydown.self.stop
-                                    @change="onParameterChange($event, item, paramKey)"
-                                    :label="item.paramDesc[paramKey].name"
-                                    @focus="$event.target.select()">
+                    @change="onParameterChange($event, item, paramKey)"
+                    :label="item.paramDesc[paramKey].name"
+                    @focus="$event.target.select()"
+                    @keydown.stop>
                                 </v-text-field>
                             </v-col>
                             <v-col

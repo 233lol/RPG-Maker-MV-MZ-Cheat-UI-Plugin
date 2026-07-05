@@ -27,8 +27,8 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
             <div class="d-flex px-3 pt-3 pb-3">
                 <v-checkbox

@@ -26,36 +26,36 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
             <v-row
-                class="ma-0 pa-0">
-                <v-col
-                    cols="12"
-                    md="6">
-                    <v-checkbox
-                        v-model="excludeNameless"
-                        density="compact"
-                        hide-details
-                        label="隐藏无名物品"
-                        @change="onTableFilterChange">
-                    
-                    </v-checkbox>
-                </v-col>
-                <v-col
-                    cols="12"
-                    md="6">
-                    <v-checkbox
-                        v-model="onlyOwnedItems"
-                        density="compact"
-                        hide-details
-                        label="只显示拥有的物品"
-                        @change="onTableFilterChange">
-                    
-                    </v-checkbox>
-                </v-col>
-            </v-row>
+                    class="ma-0 pa-0">
+                    <v-col
+                        cols="12"
+                        md="6">
+                        <v-checkbox
+                            v-model="excludeNameless"
+                            density="compact"
+                            hide-details
+                            label="隐藏无名物品"
+                            @change="onTableFilterChange">
+                        
+                        </v-checkbox>
+                    </v-col>
+                    <v-col
+                        cols="12"
+                        md="6">
+                        <v-checkbox
+                            v-model="onlyOwnedItems"
+                            density="compact"
+                            hide-details
+                            label="只显示拥有的物品"
+                            @change="onTableFilterChange">
+                        
+                        </v-checkbox>
+                    </v-col>
+                </v-row>
         </template>
         <template
             #item.amount="{ item }">
@@ -64,11 +64,11 @@ export default {
                 hide-details
                 variant="solo"
                 bg-color="grey-darken-3"
-                :model-value="item.amount"
+                v-model="item.amount"
                 density="compact"
-                @keydown.self.stop
-                @update:model-value="onItemChange(item, $event)"
-                @focus="$event.target.select()">
+                @change="onItemChange(item)"
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </template>
          <template #bottom>
@@ -126,7 +126,10 @@ export default {
   },
 
   props: {
-    items: [],
+    items: {
+      type: Array,
+      default: () => [],
+    },
     headers: {
       type: Array,
     },
@@ -135,7 +138,7 @@ export default {
     },
     searchableAttrs: {
       type: Array,
-      default: [],
+      default: () => [],
     },
   },
 
@@ -204,11 +207,12 @@ export default {
 
     onItemChange(item) {
       // modify amount
-      const diff = item.amount - $gameParty.numItems(item._item);
-      $gameParty.gainItem(item._item, diff);
+      const rawItem = toRaw(item._item);
+      const diff = item.amount - $gameParty.numItems(rawItem);
+      $gameParty.gainItem(rawItem, diff);
 
       // refresh
-      item.amount = $gameParty.numItems(item._item);
+      item.amount = $gameParty.numItems(rawItem);
     },
 
     onTableFilterChange() {},

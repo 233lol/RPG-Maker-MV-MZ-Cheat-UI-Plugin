@@ -58,9 +58,9 @@ export default {
                             variant="outlined"
                             density="compact"
                             hide-details
-                            @keydown.self.stop
                             @change="onLevelChange(actor)"
-                            @focus="$event.target.select()"></v-text-field>
+                            @focus="$event.target.select()"
+                            @keydown.stop></v-text-field>
                     </v-col>
                     <v-col>
                         <v-text-field
@@ -69,9 +69,9 @@ export default {
                             variant="outlined"
                             density="compact"
                             hide-details
-                            @keydown.self.stop
                             @change="onExpChange(actor)"
-                            @focus="$event.target.select()"></v-text-field>
+                            @focus="$event.target.select()"
+                            @keydown.stop></v-text-field>
                     </v-col>
                 </v-row>
 
@@ -88,9 +88,9 @@ export default {
                             variant="outlined"
                             density="compact"
                             hide-details
-                            @keydown.self.stop
                             @change="onParamChange(actor, paramIdx)"
-                            @focus="$event.target.select()"></v-text-field>
+                            @focus="$event.target.select()"
+                            @keydown.stop></v-text-field>
                     </v-col>
                 </v-row>
             </v-card>

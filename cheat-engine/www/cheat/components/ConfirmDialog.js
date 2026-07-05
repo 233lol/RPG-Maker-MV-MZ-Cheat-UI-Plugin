@@ -8,9 +8,9 @@ export default {
         class="pt-4">
       <v-card-text
         class="text-subtitle-1">
-        <template v-for="(msg, idx) in messageArray">
-          <span :key="idx">{{msg}}</span>
-          <br :key="-idx - 1"/>
+        <template v-for="(msg, idx) in messageArray" :key="idx">
+          <span>{{msg}}</span>
+          <br/>
         </template>
       </v-card-text>
 

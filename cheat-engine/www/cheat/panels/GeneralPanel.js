@@ -33,9 +33,9 @@ export default {
             variant="outlined"
             density="compact"
             hide-details
-            @keydown.self.stop
             @change="onGoldChange"
-            @focus="$event.target.select()">
+            @focus="$event.target.select()"
+            @keydown.stop>
         </v-text-field>
     </v-card-text>
     

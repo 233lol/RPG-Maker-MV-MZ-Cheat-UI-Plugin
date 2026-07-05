@@ -61,8 +61,8 @@ export default {
                     v-model="actor.skillSearch"
                     density="compact"
                     hide-details
-                    @keydown.self.stop
-                    @focus="$event.target.select()">
+                    @focus="$event.target.select()"
+                    @keydown.stop>
                 </v-text-field>
 
                 <v-data-table

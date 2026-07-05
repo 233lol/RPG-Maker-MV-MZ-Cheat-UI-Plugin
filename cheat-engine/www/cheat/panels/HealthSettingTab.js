@@ -22,9 +22,9 @@ export default {
                     variant="solo"
                     v-model="item.hp.hp"
                     density="compact"
-                    @keydown.self.stop
-                    @change="onDataChange"
-                    @focus="$event.target.select()">
+                    @change.stop="onDataChange"
+                    @focus="$event.target.select()"
+                    @keydown.stop>
                 </v-text-field>
                 <span class="text-caption" style="flex: none;">/ {{item.hp.mhp}}</span>
             </div>
@@ -39,9 +39,9 @@ export default {
                     variant="solo"
                     v-model="item.mp.mp"
                     density="compact"
-                    @keydown.self.stop
-                    @change="onDataChange"
-                    @focus="$event.target.select()">
+                    @change.stop="onDataChange"
+                    @focus="$event.target.select()"
+                    @keydown.stop>
                 </v-text-field>
                 <span class="text-caption" style="flex: none;">/ {{item.mp.mmp}}</span>
             </div>
@@ -74,7 +74,7 @@ export default {
   props: {
     items: {
       type: Array,
-      default: [],
+      default: () => [],
     },
   },
 
@@ -102,6 +102,7 @@ export default {
 
   methods: {
     onDataChange() {
+      if (!Array.isArray(this.editingItems)) return;
       this.$emit("change", this.editingItems);
     },
   },

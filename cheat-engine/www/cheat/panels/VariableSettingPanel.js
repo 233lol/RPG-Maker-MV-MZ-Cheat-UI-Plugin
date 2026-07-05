@@ -26,8 +26,8 @@ export default {
                 v-model="search"
                 density="compact"
                 hide-details
-                @keydown.self.stop
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
             <div class="d-flex align-center px-3 pt-3 pb-3">
                 <v-checkbox
@@ -61,9 +61,9 @@ export default {
                 variant="solo"
                 :model-value="item.value"
                 density="compact"
-                @keydown.self.stop
                 @update:model-value="onItemChange(item, $event)"
-                @focus="$event.target.select()">
+                @focus="$event.target.select()"
+                @keydown.stop>
             </v-text-field>
         </template>
         <template #item.lock="{ item }">
