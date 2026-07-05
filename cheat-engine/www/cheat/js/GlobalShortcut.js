@@ -397,7 +397,6 @@ class GlobalShortcut {
   }
 
   initialize() {
-    console.log("__global shortcut initialized");
 
     this.shortcutSettingsFile = "./www/cheat-settings/shortcuts.json";
 
@@ -415,6 +414,8 @@ class GlobalShortcut {
     // initialize shortcut map
     this.shortcutMap = new ShortcutMap();
     this.initializeShortcutMap();
+    
+    console.log("__global shortcut initialized");
   }
 
   initializeShortcutConfig() {
