@@ -8,6 +8,8 @@ Vue 2 + Vuetify 2 迁移至 Vue 3 + Vuetify 3。
 - Vue 3 + Vuetify 3 重构
 - Makefile 构建系统
 - 诸多 bug 修复
+- 添加了角色技能修改
+- 完全离线化
 ## 构建
 
 ### 前置要求
