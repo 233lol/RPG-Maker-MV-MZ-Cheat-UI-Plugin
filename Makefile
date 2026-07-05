@@ -28,10 +28,7 @@ $(vuetifycss) $(mdicss) $(mdifonts):
 	pnpm run vendor:assets
 
 clean:
-	-rm *.tar.gz $(verfn) $(shiki)
-
-clean-all: clean
-	-rm -f $(vuetify) $(vue) $(vuetifycss) $(mdicss)
+	-rm -f *.tar.gz *-latest.tar.gz $(verfn) $(shiki) $(vuetify) $(vue) $(vuetifycss) $(mdicss)
 	-rm -f cheat-engine/www/cheat/fonts/materialdesignicons-webfont.*
 
 %-$(hash).tar.gz: $(verfn) $(shiki) $(vuetify) $(vue) $(vuetifycss) $(mdicss) $(mdifonts)
