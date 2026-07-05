@@ -2,22 +2,98 @@
 
 基于 [Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin) 修改而来。
 
-变化：
+Vue 2 + Vuetify 2 迁移至 Vue 3 + Vuetify 3。
 
-1. （当前的）事件查看器
-2. REPL
-3. 修复一些 bug
-4. 去除原本的 build script，用 makefile 重写。`package.json` 则用于 [Shiki](https://shiki.style/) 的 fine-grained bundling.
+## 变化 / 功能
 
-可通过 [CI](https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin/actions) 下载 artifact.
+- 事件查看器 (Event Inspector)
+- 调试 REPL
+- Vue 3 + Vuetify 3 重构
+- Makefile 构建系统
+- 诸多 bug 修复
 
 ![REPL](./assets/repl.png)
 ![event](./assets/eventInspector.png)
 
-Building:
+## 构建
+
+### 前置要求
+
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/)
+
+### 构建命令
 
 ```shell
+# 安装依赖并打包 MV + MZ
 pnpm i && make
+
+# 仅打包 MV
+make mv
+
+# 仅打包 MZ
+make mz
+
+# 清理构建产物
+make clean
 ```
 
-`make` 后可加参数 `mv | mz` 只打包其中一个游戏版本的插件。
+构建产物位于项目根目录：
+- `mv-<commit-hash>.tar.gz` / `mv-latest.tar.gz`
+- `mz-<commit-hash>.tar.gz` / `mz-latest.tar.gz`
+
+### Vendor 构建脚本
+
+| 命令 | 产物 | 说明 |
+|---|---|---|
+| `pnpm run vendor:shiki` | `cheat-engine/www/cheat/libs/shiki.bundle.mjs` | Shiki 语法高亮引擎 (esbuild 打包) |
+| `pnpm run vendor:vuetify` | `cheat-engine/www/cheat/libs/vuetify.js` | Vuetify 3 ESM (esbuild 打包) |
+| `pnpm run vendor:vue` | `cheat-engine/www/cheat/libs/vue.js` | 从 `node_modules/vue/dist/vue.esm-browser.js` 复制 |
+| `pnpm run vendor:assets` | `css/vuetify.css`, `css/materialdesignicons.css`, `fonts/*` | 从 npm 包复制 CSS 和字体 |
+| `pnpm run vendor:libs` | - | 运行 `vendor:vuetify` + `vendor:vue` + `vendor:assets` |
+
+`make vendor` 可一键执行全部 vendor 构建。
+
+Vendor 构建由 Makefile 依赖自动触发，无需手动执行。
+
+## 项目结构
+
+| 路径 | 说明 |
+|---|---|
+| `cheat-engine/www/cheat/` | Cheat UI 源码 (Vue 3 + Vuetify 3, ES Module) |
+| `cheat-engine/www/cheat/panels/` | 各功能面板组件 |
+| `cheat-engine/www/cheat/components/` | 通用 UI 组件 |
+| `cheat-engine/www/cheat/js/` | 工具函数 / Cheat API |
+| `cheat-engine/www/cheat/init/` | 插件入口 & 初始化 |
+| `cheat-engine/www/cheat/libs/` | 第三方库 (Vue, Vuetify, Shiki) |
+| `cheat-engine/www/cheat/css/` | 样式文件 |
+| `cheat-engine/www/cheat/fonts/` | Material Design Icons 字体 |
+| `cheat-engine/www/_cheat_initialize/mv/` | MV 替换用 `main.js` |
+| `cheat-engine/www/_cheat_initialize/mz/` | MZ 替换用 `main.js` |
+| `tools/` | Vendor 构建脚本 |
+
+## 工作原理
+
+插件替换游戏原始的 `main.js`，加载 `cheat/init/import.js` → `cheat/init/setup.js` (ES Module) → 挂载 `MainComponent`。
+
+可通过点击对应按钮或快捷键呼出/隐藏作弊菜单。
+
+## Git 仓库说明
+
+`libs/`、`css/`、`fonts/` 中的 vendor 文件已纳入 git 跟踪，也可通过 `pnpm run vendor:*` 重新生成：
+
+```shell
+pnpm run vendor:libs   # 生成 vue.js + vuetify.js + CSS + fonts
+pnpm run vendor:shiki  # 生成 shiki.bundle.mjs
+make vendor            # 生成全部 vendor 文件
+```
+
+如果要从 git 中取消跟踪这些文件，可在 `.gitignore` 中添加规则后用 `git rm --cached` 解除跟踪，并确保 clone 后执行 `pnpm i && make vendor` 补齐文件。
+
+## CI
+
+GitHub Actions 在推送到 `main` 时自动构建并上传 `.tar.gz` 产物。
+
+## 许可证
+
+参见原项目许可证。

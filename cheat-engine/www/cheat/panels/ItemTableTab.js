@@ -1,4 +1,5 @@
 import PageJump from "../components/PageJump.js";
+import { toRaw } from "../libs/vue.js";
 
 export default {
   name: "ItemTableTab",
@@ -7,21 +8,23 @@ export default {
 
   template: `
 <v-card flat class="ma-0 pa-0">
- <v-data-table
+  <v-data-table
         v-if="tableHeaders"
-        denses
+        density="compact"
         :headers="tableHeaders"
         :items="filteredTableItems"
         :search="search"
-        :custom-filter="tableItemFilter"
-        :options.sync="pagination">
-        <template v-slot:top>
+         :custom-filter="tableItemFilter"
+         v-model:page="pagination.page"
+         v-model:items-per-page="pagination.itemsPerPage"
+         :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
+        <template #top>
             <v-text-field
                 label="搜索..."
-                solo
-                background-color="grey darken-3"
+                variant="solo"
+                bg-color="grey-darken-3"
                 v-model="search"
-                dense
+                density="compact"
                 hide-details
                 @keydown.self.stop
                 @focus="$event.target.select()">
@@ -33,7 +36,7 @@ export default {
                     md="6">
                     <v-checkbox
                         v-model="excludeNameless"
-                        dense
+                        density="compact"
                         hide-details
                         label="隐藏无名物品"
                         @change="onTableFilterChange">
@@ -45,7 +48,7 @@ export default {
                     md="6">
                     <v-checkbox
                         v-model="onlyOwnedItems"
-                        dense
+                        density="compact"
                         hide-details
                         label="只显示拥有的物品"
                         @change="onTableFilterChange">
@@ -55,52 +58,58 @@ export default {
             </v-row>
         </template>
         <template
-            v-slot:item.amount="{ item }">
+            #item.amount="{ item }">
             <v-text-field
-                background-color="grey darken-3"
-                class="d-inline-flex"
-                height="10"
                 style="width: 60px;"
                 hide-details
-                solo
-                :value="item.amount"
-                label="Amount"
-                dense
+                variant="solo"
+                bg-color="grey-darken-3"
+                :model-value="item.amount"
+                density="compact"
                 @keydown.self.stop
-                @change="onItemChange(item, $event)"
+                @update:model-value="onItemChange(item, $event)"
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
-        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-            <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
-            <page-jump
-                :page="pagination.page"
-                :page-count="pageCount"
-                @jump="jumpToPage">
-            </page-jump>
-        </template>
+         <template #bottom>
+             <div class="d-flex align-center justify-space-between pa-2">
+                 <div class="d-flex align-center">
+                     <span class="text-caption mr-2">每页</span>
+                     <v-select
+                         v-model="pagination.itemsPerPage"
+                         :items="[5, 10, 15, 20]"
+                         density="compact"
+                         hide-details
+                variant="solo"
+                style="width: 90px;"
+                     ></v-select>
+                 </div>
+                 <div class="d-flex align-center ga-2">
+                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
+                     <page-jump
+                         :page="pagination.page"
+                         :page-count="pageCount"
+                         @jump="jumpToPage">
+                     </page-jump>
+                 </div>
+             </div>
+         </template>
     </v-data-table>
-    
     <v-tooltip
-        bottom>
-        <span>Reload from game data</span>
-        <template v-slot:activator="{ on, attrs }">
+        location="bottom">
+        <template #activator="{ props }">
             <v-btn
-                style="top: 0px; right: 0px;"
                 color="pink"
-                dark
-                small
-                absolute
-                top
-                right
-                fab
-                v-bind="attrs"
-                v-on="on"
+                size="small"
+                icon
+                style="position: absolute; top: 0px; right: 0px;"
+                v-bind="props"
                 @click="initializeVariables">
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
         </template>
+        <span>重新加载游戏数据</span>
     </v-tooltip>
 </v-card>
     `,
@@ -155,33 +164,47 @@ export default {
         return true;
       });
     },
-    pageCount() {
-      return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
-    },
-  },
+     totalCount() {
+       return this.filteredTableItems.length;
+     },
+
+     paginationStart() {
+       if (this.totalCount === 0) return 0;
+       return (this.pagination.page - 1) * this.pagination.itemsPerPage + 1;
+     },
+
+     paginationStop() {
+       return Math.min(this.pagination.page * this.pagination.itemsPerPage, this.totalCount);
+     },
+
+     pageCount() {
+       return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
+     },
+   },
 
   methods: {
     initializeVariables() {
       this.tableHeaders = this.headers.slice(0);
       this.tableHeaders.push({
-        text: "数量",
-        value: "amount",
+        title: "数量",
+        key: "amount",
       });
 
       this.tableItems = this.items
         .filter((item) => !!item)
         .map((item) => {
-          const tableItem = this.asTableData(item);
-          tableItem._item = item;
-          tableItem.amount = $gameParty.numItems(item);
+          const rawItem = toRaw(item);
+          const tableItem = this.asTableData(rawItem);
+          tableItem._item = rawItem;
+          tableItem.amount = $gameParty.numItems(rawItem);
 
           return tableItem;
         });
     },
 
-    onItemChange(item, newValue) {
+    onItemChange(item) {
       // modify amount
-      const diff = Number(newValue) - $gameParty.numItems(item._item);
+      const diff = item.amount - $gameParty.numItems(item._item);
       $gameParty.gainItem(item._item, diff);
 
       // refresh
@@ -197,7 +220,7 @@ export default {
 
       search = search.toLowerCase();
       for (const attr of this.searchableAttrs) {
-        if (item[attr].toLowerCase().contains(search)) {
+        if (item[attr].toLowerCase().includes(search)) {
           return true;
         }
       }

@@ -28,12 +28,6 @@ export default {
     <confirm-dialog></confirm-dialog>
 </div>`,
 
-  style: `
-    #cheat-modal: {
-        opacity: 0.7;
-    }
-    `,
-
   data() {
     return {
       currentKey: Key.createEmpty(),
@@ -43,9 +37,7 @@ export default {
   },
 
   created() {
-    const self = this;
-
-    customizeRPGMakerFunctions(self);
+    customizeRPGMakerFunctions(this);
 
     GeneralCheat.toggleCheatModal = (componentName = null) => {
       this.toggleCheatModal(componentName);
@@ -59,11 +51,9 @@ export default {
     window.addEventListener("keyup", this.onGlobalKeyUp);
   },
 
-  mounted() {
-    // this.checkVersion();
-  },
+  mounted() {},
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("keydown", this.onGlobalKeyDown);
     window.removeEventListener("keyup", this.onGlobalKeyUp);
   },
@@ -108,16 +98,13 @@ export default {
         this.currentComponentName = componentName;
       }
 
-      // close
       if (this.show) {
-        // hide modal if only componentName unchanged
         if (!componentName || componentName === prevComponentName) {
           this.show = false;
         }
         return;
       }
 
-      // open
       this.show = true;
     },
 

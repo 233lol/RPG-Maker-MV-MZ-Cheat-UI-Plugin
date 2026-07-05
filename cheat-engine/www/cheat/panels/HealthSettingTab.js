@@ -5,47 +5,46 @@ export default {
 <div>
     <v-data-table
         v-if="tableHeaders"
-        dense
-        hide-default-footer
+        density="compact"
         :headers="tableHeaders"
-        :items="editingItems">
-        <template
-            v-slot:item.name="{ item }">
-            <span class="caption">{{item.name}}</span>
+        :items="editingItems"
+        hide-default-footer>
+        <template #item.name="{ item }">
+            <span class="text-caption">{{item.name}}</span>
         </template>
-        <template
-            v-slot:item.hp="{ item }">
-            <v-text-field
-                background-color="grey darken-3"
-                class="d-inline-flex x-small-field caption"
-                style="width: 50px;"
-                hide-details
-                solo
-                v-model="item.hp.hp"
-                label="Curr Hp"
-                dense
-                @keydown.self.stop
-                @change="onDataChange"
-                @focus="$event.target.select()">
-            </v-text-field>
-            <span class="caption">/ {{item.hp.mhp}}</span>
+        <template #item.hp="{ item }">
+            <div class="d-flex align-center" style="gap: 2px; white-space: nowrap;">
+                <v-text-field
+                    bg-color="grey-darken-3"
+                    class="inline-field"
+                    style="width: 70px; flex: none;"
+                    hide-details
+                    variant="solo"
+                    v-model="item.hp.hp"
+                    density="compact"
+                    @keydown.self.stop
+                    @change="onDataChange"
+                    @focus="$event.target.select()">
+                </v-text-field>
+                <span class="text-caption" style="flex: none;">/ {{item.hp.mhp}}</span>
+            </div>
         </template>
-        <template
-            v-slot:item.mp="{ item }">
-            <v-text-field
-                background-color="grey darken-3"
-                class="d-inline-flex x-small-field caption"
-                style="width: 50px;"
-                hide-details
-                solo
-                v-model="item.mp.mp"
-                label="Curr Mp"
-                dense
-                @keydown.self.stop
-                @change="onDataChange"
-                @focus="$event.target.select()">
-            </v-text-field>
-            <span class="caption">/ {{item.mp.mmp}}</span>
+        <template #item.mp="{ item }">
+            <div class="d-flex align-center" style="gap: 2px; white-space: nowrap;">
+                <v-text-field
+                    bg-color="grey-darken-3"
+                    class="inline-field"
+                    style="width: 70px; flex: none;"
+                    hide-details
+                    variant="solo"
+                    v-model="item.mp.mp"
+                    density="compact"
+                    @keydown.self.stop
+                    @change="onDataChange"
+                    @focus="$event.target.select()">
+                </v-text-field>
+                <span class="text-caption" style="flex: none;">/ {{item.mp.mmp}}</span>
+            </div>
         </template>
     </v-data-table>
 </div>
@@ -55,16 +54,16 @@ export default {
     return {
       tableHeaders: [
         {
-          text: "名字",
-          value: "name",
+          title: "名字",
+          key: "name",
         },
         {
-          text: "HP",
-          value: "hp",
+          title: "HP",
+          key: "hp",
         },
         {
-          text: "MP",
-          value: "mp",
+          title: "MP",
+          key: "mp",
         },
       ],
 

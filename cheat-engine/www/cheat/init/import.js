@@ -58,20 +58,14 @@ function applyCheat() {
     document.body.appendChild(script);
   }
 
-  // load libs
-  //__loadJavaScript("cheat/libs/axios.min.js");
-
   // add <div id='app'> node for vue
   const appDiv = document.createElement("div");
 
   appDiv.id = "app";
+  appDiv.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;";
   appDiv.innerHTML = `
-<v-app
-    app
-    dark
-    style="background-color: black;">
-    <v-main
-        dark>
+<v-app>
+    <v-main>
         <main-component></main-component>
     </v-main>
 </v-app>
@@ -88,7 +82,6 @@ function applyCheat() {
 `;
 
   // import in body
-  // __loadJavaScript('cheat/init/setup.js')
   __addScript("module", "cheat/init/setup.js");
 }
 

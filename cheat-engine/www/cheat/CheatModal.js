@@ -31,11 +31,8 @@ export default {
     ShortcutPanel,
   },
 
-  // default  width="700" height="400"
-  // 为了适配手机屏幕，改为百分比宽高，但限制最大宽高
   template: `
 <v-card 
-    dark
     class="z-index-cheat-0"
     width="80vw"
     height="90vh"
@@ -44,50 +41,62 @@ export default {
         class="fill-height ma-0 pa-0">
         <div
             :style="'width: ' + navWidth + 'px;'"
-            class="fill-height d-inline pa-2 overflow-y-auto hide-scrollbar">
-            <v-treeview
-                :active.sync="navTreeModel"
-                transition
-                return-object
-                open-all
-                dense
-                :items="navTreeItems"
-                activatable
-                item-key="name"
-                open-on-click
-                @update:active="onNavTreeUpdate">
-                <template v-slot:label="{item}">
-                    <v-icon v-text="item.icon" small class="mx-0 px-0 align-self-center"></v-icon>
-                    <span class="subtitle-2">{{item.name}}</span>
+            class="fill-height d-inline pa-1 overflow-y-auto hide-scrollbar">
+            <v-list density="compact" nav class="text-caption cheat-nav" :opened="openedGroups">
+                <template v-for="item in navTreeItems" :key="item.name">
+                    <v-list-group v-if="item.children" :value="item.name">
+                        <template v-slot:activator="{ props }">
+                            <v-list-item
+                                v-bind="props"
+                                :prepend-icon="item.icon"
+                                :title="item.name"
+                                density="compact"
+                            ></v-list-item>
+                        </template>
+                        <v-list-item
+                            v-for="child in item.children"
+                            :key="child.name"
+                            :prepend-icon="child.icon"
+                            :title="child.name"
+                            :active="modelValue === child.component"
+                            density="compact"
+                            class="pl-4"
+                            @click="onNavItemClick(child)"
+                        ></v-list-item>
+                    </v-list-group>
+                    <v-list-item
+                        v-else
+                        :prepend-icon="item.icon"
+                        :title="item.name"
+                        :active="modelValue === item.component"
+                        density="compact"
+                        @click="onNavItemClick(item)"
+                    ></v-list-item>
                 </template>
-            </v-treeview>
+            </v-list>
         </div>
         <v-divider vertical></v-divider>
         <div
             :style="'width: calc(100% - ' + navWidth + 'px - 1px);'"
             class="fill-height d-inline pa-2 overflow-y-auto hide-scrollbar">
-            <component :is="currentComponentName"></component>
+            <component :is="modelValue"></component>
         </div>
     </v-row>
 </v-card>
     `,
 
-  model: {
-    prop: "currentComponentName",
-    event: "change",
-  },
+  emits: ["update:modelValue"],
 
   props: {
-    currentComponentName: {
+    modelValue: {
       type: String,
     },
   },
 
   data() {
     return {
-      navWidth: 150,
-
-      navTreeModel: undefined,
+      navWidth: 160,
+      openedGroups: ['物品'],
 
       navTreeItems: [
         {
@@ -161,22 +170,6 @@ export default {
           icon: "mdi-keyboard-outline",
           component: "shortcut-panel",
         },
-        //   {
-        //       name: '清除状态',
-        //       icon: 'mdi-water-off',
-        //       component: ''
-        //   },
-        //   {
-        //       name: 'Settings',
-        //       icon: 'mdi-cog',
-        //       children: [
-        //           {
-        //               name: 'Translate',
-        //               icon: 'mdi-google-translate',
-        //               component: 'translate-settings-panel'
-        //           }
-        //       ]
-        //   }
       ],
     };
   },
@@ -192,20 +185,17 @@ export default {
   },
 
   mounted() {
-    let navItem = this.componentNameToNavItem[this.currentComponentName];
+    let navItem = this.componentNameToNavItem[this.modelValue];
 
     if (!navItem) {
       navItem = Object.values(this.componentNameToNavItem)[0];
-      this.$emit("change", navItem.component);
+      this.$emit("update:modelValue", navItem.component);
     }
-    this.navTreeModel = [navItem];
   },
 
   methods: {
-    onNavTreeUpdate(data) {
-      if (data && data.length === 1) {
-        this.$emit("change", data[0].component);
-      }
+    onNavItemClick(item) {
+      this.$emit("update:modelValue", item.component);
     },
 
     iterateLeaf(node, leafFunc) {

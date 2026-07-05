@@ -25,12 +25,12 @@ export default {
 
       headers: [
         {
-          text: "名称",
-          value: "name",
+          title: "名称",
+          key: "name",
         },
         {
-          text: "描述",
-          value: "desc",
+          title: "描述",
+          key: "desc",
         },
       ],
     };

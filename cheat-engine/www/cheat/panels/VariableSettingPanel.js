@@ -10,19 +10,21 @@ export default {
 <v-card flat class="ma-0 pa-0">
     <v-data-table
         v-if="tableHeaders"
-        denses
+        density="compact"
         :headers="tableHeaders"
         :items="filteredTableItems"
         :search="search"
-        :custom-filter="tableItemFilter"
-        :options.sync="pagination">
-        <template v-slot:top>
+         :custom-filter="tableItemFilter"
+         v-model:page="pagination.page"
+         v-model:items-per-page="pagination.itemsPerPage"
+         :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
+        <template #top>
             <v-text-field
                 label="搜索..."
-                solo
-                background-color="grey darken-3"
+                variant="solo"
+                bg-color="grey-darken-3"
                 v-model="search"
-                dense
+                density="compact"
                 hide-details
                 @keydown.self.stop
                 @focus="$event.target.select()">
@@ -30,83 +32,88 @@ export default {
             <div class="d-flex align-center px-3 pt-3 pb-3">
                 <v-checkbox
                     v-model="excludeNameless"
-                    dense
+                    density="compact"
                     hide-details
                     label="隐藏无名变量">
                 </v-checkbox>
                 <v-spacer></v-spacer>
-                <v-tooltip bottom>
-                    <span>{{ allFilteredLocked ? '解锁所有过滤项' : '锁定所有过滤项' }}</span>
-                    <template v-slot:activator="{ on, attrs }">
+                <v-tooltip location="bottom">
+                    <template #activator="{ props }">
                         <v-btn
                             color="amber"
-                            v-bind="attrs"
-                            v-on="on"
-                            fab
-                            x-small
+                            v-bind="props"
+                            icon
+                            size="x-small"
                             @click="toggleAllFilteredLocks">
                             <v-icon>{{ allFilteredLocked ? 'mdi-lock-open-variant' : 'mdi-lock' }}</v-icon>
                         </v-btn>
                     </template>
+                    <span>{{ allFilteredLocked ? '解锁所有过滤项' : '锁定所有过滤项' }}</span>
                 </v-tooltip>
             </div>
         </template>
         <template
-            v-slot:item.value="{ item }">
+            #item.value="{ item }">
             <v-text-field
-                background-color="grey darken-3"
-                class="d-inline-flex"
-                height="10"
-                style="width: 60px;"
+                bg-color="grey-darken-3"
+                style="width: 90px;"
                 hide-details
-                solo
-                :value="item.value"
-                label="Value"
-                dense
+                variant="solo"
+                :model-value="item.value"
+                density="compact"
                 @keydown.self.stop
-                @change="onItemChange(item, $event)"
+                @update:model-value="onItemChange(item, $event)"
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
-        <template v-slot:item.lock="{ item }">
+        <template #item.lock="{ item }">
             <v-btn
                 icon
-                x-small
-                :color="item.lockEnabled ? 'amber' : 'grey lighten-1'"
+                size="x-small"
+                :color="item.lockEnabled ? 'amber' : 'grey-lighten-1'"
                 @click.stop="toggleItemLock(item)">
                 <v-icon>{{ item.lockEnabled ? 'mdi-lock' : 'mdi-lock-open-variant' }}</v-icon>
             </v-btn>
         </template>
-        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-            <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
-            <page-jump
-                :page="pagination.page"
-                :page-count="pageCount"
-                @jump="jumpToPage">
-            </page-jump>
-        </template>
+         <template #bottom>
+             <div class="d-flex align-center justify-space-between pa-2">
+                 <div class="d-flex align-center">
+                     <span class="text-caption mr-2">每页</span>
+                     <v-select
+                         v-model="pagination.itemsPerPage"
+                         :items="[5, 10, 15, 20]"
+                         density="compact"
+                         hide-details
+                         variant="outlined"
+                style="width: 90px;"
+                     ></v-select>
+                 </div>
+                 <div class="d-flex align-center ga-2">
+                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
+                     <page-jump
+                         :page="pagination.page"
+                         :page-count="pageCount"
+                         @jump="jumpToPage">
+                     </page-jump>
+                 </div>
+             </div>
+         </template>
     </v-data-table>
-    
     <v-tooltip
-        bottom>
-        <span>重新加载游戏数据</span>
-        <template v-slot:activator="{ on, attrs }">
+        location="bottom">
+        <template #activator="{ props }">
             <v-btn
-                style="top: 0px; right: 0px;"
                 color="pink"
-                dark
-                small
-                absolute
-                top
-                right
-                fab
-                v-bind="attrs"
-                v-on="on"
+                size="small"
+                icon
+                style="position: absolute; top: 0px; right: 0px;"
+                v-bind="props"
                 @click="initializeVariables">
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
         </template>
+        <span>重新加载游戏数据</span>
     </v-tooltip>
 </v-card>
     `,
@@ -120,16 +127,16 @@ export default {
 
       tableHeaders: [
         {
-          text: "变量名",
-          value: "name",
+          title: "变量名",
+          key: "name",
         },
         {
-          text: "值",
-          value: "value",
+          title: "值",
+          key: "value",
         },
         {
-          text: "锁定",
-          value: "lock",
+          title: "锁定",
+          key: "lock",
           sortable: false,
           width: 72,
         },
@@ -152,7 +159,7 @@ export default {
     this.startLockUpdater();
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopLockUpdater();
   },
 
@@ -178,10 +185,23 @@ export default {
       return lockableItems.every((item) => !!item.lockEnabled);
     },
 
-    pageCount() {
-      return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
-    },
-  },
+     totalCount() {
+       return this.filteredTableItems.length;
+     },
+
+     paginationStart() {
+       if (this.totalCount === 0) return 0;
+       return (this.pagination.page - 1) * this.pagination.itemsPerPage + 1;
+     },
+
+     paginationStop() {
+       return Math.min(this.pagination.page * this.pagination.itemsPerPage, this.totalCount);
+     },
+
+     pageCount() {
+       return Math.ceil(this.filteredTableItems.length / this.pagination.itemsPerPage) || 1;
+     },
+   },
 
   methods: {
     async initializeVariables() {

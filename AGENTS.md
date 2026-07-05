@@ -10,7 +10,16 @@ make mz                  # build only MZ
 
 Output: `mv-<hash>.tar.gz` and/or `mz-<hash>.tar.gz`.
 
-`pnpm run vendor:shiki` builds `cheat-engine/www/cheat/libs/shiki.bundle.mjs` (auto-triggered by Makefile dependency). The `package.json` exists solely for Shiki bundling — the plugin itself has no Node dependencies.
+Vendor scripts (all available via `pnpm run vendor:*`):
+
+| Command | Output |
+|---|---|
+| `vendor:shiki` | `cheat-engine/www/cheat/libs/shiki.bundle.mjs` |
+| `vendor:vuetify` | `cheat-engine/www/cheat/libs/vuetify.js` |
+| `vendor:vue` | `cheat-engine/www/cheat/libs/vue.js` (copied from `node_modules/vue/dist/vue.esm-browser.js`) |
+| `vendor:assets` | `css/vuetify.css`, `css/materialdesignicons.css`, `fonts/*` (copied from npm packages) |
+
+`vendor:shiki` is auto-triggered by Makefile dependency. `make vendor` runs all four.
 
 No tests, linter, typechecker, or tsconfig (all source is plain JS except `tools/shiki.bundle.ts`).
 

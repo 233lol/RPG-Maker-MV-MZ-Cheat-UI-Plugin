@@ -1,28 +1,27 @@
 import { Key } from "../js/KeyCodes.js";
 
 export default {
-  name: "ShortcutPanel",
+  name: "KeyInputField",
 
   template: `
 <v-text-field
-    v-model="showingText"
+    :model-value="showingText"
     :label="label"
-    :solo="solo"
-    :outlined="outlined"
-    :background-color="backgroundColor"
-    dense
+    :variant="variant"
+    :bg-color="backgroundColor"
+    density="compact"
     hide-details
     @keydown.self.stop.prevent="onShortcutInput"
     @focus="$event.target.select()">
-    <template v-slot:append>
+    <template #append>
         <v-btn 
             v-if="deletable"
-            :disabled="shortcut.isEmpty()"
-            small
+            :disabled="modelValue.isEmpty()"
+            size="small"
             :style="deleteBtnStyle"
             icon
             @click="onDeleteClick">
-            <v-icon small>mdi-close-circle</v-icon>
+            <v-icon size="small">mdi-close-circle</v-icon>
         </v-btn>
     </template>
 </v-text-field>
@@ -32,13 +31,8 @@ export default {
     return {};
   },
 
-  model: {
-    prop: "shortcut",
-    event: "change",
-  },
-
   props: {
-    shortcut: {
+    modelValue: {
       type: Key,
       default: () => Key.createEmpty(),
     },
@@ -75,20 +69,26 @@ export default {
   },
 
   computed: {
+    variant() {
+      if (this.outlined) return "outlined";
+      if (this.solo) return "solo";
+      return undefined;
+    },
+
     deleteBtnStyle() {
-      return `opacity: ${this.shortcut.isEmpty() ? 0 : 0.7}`;
+      return `opacity: ${this.modelValue.isEmpty() ? 0 : 0.7}`;
     },
 
     showingText() {
-      return this.shortcut.asDisplayString();
+      return this.modelValue.asDisplayString();
     },
   },
 
   methods: {
     onDeleteClick() {
       const eventKey = Key.createEmpty();
+      this.$emit("update:modelValue", eventKey);
       this.$emit("change", eventKey);
-      this.$emit("input", eventKey);
     },
 
     onShortcutInput(e) {
@@ -98,11 +98,10 @@ export default {
         return;
       }
 
-      if (!eventKey.equals(this.shortcut)) {
+      if (!eventKey.equals(this.modelValue)) {
+        this.$emit("update:modelValue", eventKey);
         this.$emit("change", eventKey);
       }
-
-      this.$emit("input", eventKey);
     },
   },
 };

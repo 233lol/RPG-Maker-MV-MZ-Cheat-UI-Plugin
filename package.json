@@ -3,15 +3,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "vendor:shiki": "node tools/build-shiki.mjs"
+    "vendor:shiki": "node tools/build-shiki.mjs",
+    "vendor:vuetify": "node tools/build-vuetify.mjs",
+    "vendor:vue": "node tools/copy-vue.mjs",
+    "vendor:assets": "node tools/copy-vendor-assets.mjs",
+    "vendor:libs": "node tools/build-vuetify.mjs && node tools/copy-vue.mjs && node tools/copy-vendor-assets.mjs"
   },
   "devDependencies": {
+    "@mdi/font": "^7.4.47",
     "@shikijs/core": "^4.0.2",
     "@shikijs/engine-oniguruma": "^4.0.2",
     "@shikijs/langs": "^4.0.2",
     "@shikijs/themes": "^4.0.2",
     "esbuild": "^0.27.4",
-    "shiki": "^4.0.2"
+    "shiki": "^4.0.2",
+    "vue": "^3.5.39",
+    "vuetify": "^3.12.9"
   },
   "packageManager": "pnpm@11.8.0"
 }

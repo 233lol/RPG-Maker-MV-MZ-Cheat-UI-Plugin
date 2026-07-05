@@ -30,8 +30,8 @@ export default {
         <v-text-field
             v-model="gold"
             label="钱"
-            outlined
-            dense
+            variant="outlined"
+            density="compact"
             hide-details
             @keydown.self.stop
             @change="onGoldChange"
@@ -45,24 +45,24 @@ export default {
             :min="minSpeed"
             :max="maxSpeed"
             :step="stepSpeed"
-            thumb-label
+            :thumb-label="true"
             thumb-color="red"
             hide-details
             @change="onSpeedChange">
-            <template v-slot:prepend>
-                <span class="grey--text text--lighten-1 align-self-center mr-2 body-2" style="white-space: nowrap;">移动速度</span>
+            <template #prepend>
+                <span class="text-grey-lighten-1 align-self-center mr-2 text-body-2" style="white-space: nowrap;">移动速度</span>
                 <v-icon color="grey lighten-3" @click="addSpeed(-stepSpeed)">mdi-chevron-left</v-icon>
             </template>
-            <template v-slot:append>
+            <template #append>
                 <v-icon color="grey lighten-3" @click="addSpeed(stepSpeed)">mdi-chevron-right</v-icon>
-                <span class="grey--text text--lighten-1 align-self-center ml-2">{{speed.toFixed(1)}}</span>
+                <span class="text-grey-lighten-1 align-self-center ml-2">{{speed.toFixed(1)}}</span>
             </template>
         </v-slider>
         <v-checkbox
             v-model="fixSpeed"
             class="pt-0"
             hide-details
-            dense
+            density="compact"
             label="固定速度"
             @change="onSpeedChange">
         </v-checkbox>
@@ -73,17 +73,17 @@ export default {
             :max="maxGameSpeed"
             :step="stepGameSpeed"
             class="mt-3"
-            thumb-label
+            :thumb-label="true"
             thumb-color="red"
             hide-details
             @change="onGameSpeedChange">
-            <template v-slot:prepend>
-                <span class="grey--text text--lighten-1 align-self-center mr-2 d-inline-block body-2" style="white-space: nowrap;">游戏速度</span>
+            <template #prepend>
+                <span class="text-grey-lighten-1 align-self-center mr-2 d-inline-block text-body-2" style="white-space: nowrap;">游戏速度</span>
                 <v-icon color="grey lighten-3" @click="addGameSpeed(-stepGameSpeed)">mdi-chevron-left</v-icon>
             </template>
-            <template v-slot:append>
+            <template #append>
                 <v-icon color="grey lighten-3" @click="addGameSpeed(stepGameSpeed)">mdi-chevron-right</v-icon>
-                <span class="grey--text text--lighten-1 align-self-center ml-2 mr-2">x{{gameSpeed.toFixed(1)}}</span>
+                <span class="text-grey-lighten-1 align-self-center ml-2 mr-2">x{{gameSpeed.toFixed(1)}}</span>
                 <v-icon size="16" color="grey lighten-3 ml-2" @click="setGameSpeed(1)">mdi-restore</v-icon>
             </template>
         </v-slider>
@@ -92,7 +92,7 @@ export default {
             v-model="applyAllForGameSpeed"
             class="d-inline-flex pt-0"
             hide-details
-            dense
+            density="compact"
             label="全部场景"
             @change="onApplyAllForGameSpeedChange">
         </v-checkbox>
@@ -100,7 +100,7 @@ export default {
             v-model="applyBattleForGameSpeed"
             class="d-inline-flex ml-2 pt-0 mb-0"
             hide-details
-            dense
+            density="compact"
             label="战斗中"
             @change="onApplyBattleForGameSpeedChange">
         </v-checkbox>
@@ -109,26 +109,26 @@ export default {
     <v-card-subtitle class="mt-3 font-weight-bold">快速操作</v-card-subtitle>
     
     <v-card-text class="py-0">
-        <v-btn small @click="gotoTitle">返回标题</v-btn>
-        <v-btn small class="mr-1" @click="toggleSaveScene">保存页面</v-btn>
-        <v-btn small @click="toggleLoadScene">加载页面</v-btn>
+        <v-btn size="small" @click="gotoTitle">返回标题</v-btn>
+        <v-btn size="small" class="mr-1" @click="toggleSaveScene">保存页面</v-btn>
+        <v-btn size="small" @click="toggleLoadScene">加载页面</v-btn>
     </v-card-text>
 
     <v-card-text>
-        <v-btn small @click="victory">胜利</v-btn>
-        <v-btn small @click="recoverAllParty">我方恢复</v-btn>
-        <v-btn small @click="changeAllEnemyHealth(1)">敌人1血</v-btn>
+        <v-btn size="small" @click="victory">胜利</v-btn>
+        <v-btn size="small" @click="recoverAllParty">我方恢复</v-btn>
+        <v-btn size="small" @click="changeAllEnemyHealth(1)">敌人1血</v-btn>
     </v-card-text>
 
     <v-card-text class="pt-0">
-        <v-btn small color="indigo" @click="inspectCurrentEvent">检查当前事件</v-btn>
-        <v-btn small color="deep-purple" class="ml-2" @click="openDebugRepl">打开REPL</v-btn>
+        <v-btn size="small" color="indigo" @click="inspectCurrentEvent">检查当前事件</v-btn>
+        <v-btn size="small" color="deep-purple" class="ml-2" @click="openDebugRepl">打开REPL</v-btn>
     </v-card-text>
 
     <v-dialog v-model="showEventInspectDialog" max-width="1200" persistent>
-      <v-card dark>
+      <v-card>
             <v-card-title class="d-flex align-center">
-                <v-btn icon small @click="closeEventInspectDialog">
+                <v-btn icon size="small" @click="closeEventInspectDialog">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
@@ -136,12 +136,12 @@ export default {
             </v-card-title>
             <v-card-text>
               <v-sheet
-                outlined
+                border
                 class="pa-0"
                 style="max-height: 620px; overflow-y: auto; font-size: 12px;">
                 <div
                   v-if="inspectedEventRows.length === 0"
-                  class="pa-4 grey--text text--lighten-1">
+                  class="pa-4 text-grey-lighten-1">
                   {{ inspectedEventMessage || '(empty event list)' }}
                 </div>
                 <div v-else>
@@ -161,8 +161,8 @@ export default {
                       borderBottom: '1px solid rgba(255,255,255,0.08)',
                       backgroundColor: row.index === inspectedEventCurrentIndex ? 'rgba(33, 150, 243, 0.16)' : 'transparent'
                     }">
-                    <div style="width: 60px;" class="grey--text text--lighten-1">{{ row.index }}</div>
-                    <div style="width: 70px;" class="blue--text text--lighten-2">{{ row.codeText }}</div>
+                    <div style="width: 60px;" class="text-grey-lighten-1">{{ row.index }}</div>
+                    <div style="width: 70px;" class="text-blue-lighten-2">{{ row.codeText }}</div>
                     <div class="flex-grow-1" :style="{ paddingLeft: row.indentPx + 'px' }">
                       <div class="font-weight-bold text-uppercase">{{ row.commandName }}</div>
                       <div style="margin-top: 2px; white-space: pre-wrap; word-break: break-word;" v-html="row.paramHtml"></div>
@@ -176,18 +176,17 @@ export default {
 
     <v-dialog v-model="showDebugReplDialog" max-width="1200" persistent>
       <v-card
-        dark
         ref="debugReplCard"
         @keydown.stop
         @keyup.stop
         @keypress.stop>
             <v-card-title class="d-flex align-center">
-                <v-btn icon small @click="closeDebugRepl">
+                <v-btn icon size="small" @click="closeDebugRepl">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-card-actions>
-                    <v-btn small color="primary" @click="runRepl">执行 (⌘/Ctrl+Enter)</v-btn>
-                    <v-btn small text @click="clearReplOutput">清空输出</v-btn>
+                    <v-btn size="small" color="primary" @click="runRepl">执行 (⌘/Ctrl+Enter)</v-btn>
+                    <v-btn size="small" variant="text" @click="clearReplOutput">清空输出</v-btn>
                 </v-card-actions>
                 <v-spacer></v-spacer>
                 <span class="text-h6">调试 REPL</span>
@@ -196,7 +195,7 @@ export default {
                 <v-textarea
                     v-model="replInput"
                     label="输入"
-                    outlined
+                    variant="outlined"
                     auto-grow
                     rows="10"
                     hide-details
@@ -211,7 +210,7 @@ export default {
                 <div class="mt-3 mb-1 text-caption">输出</div>
                 <v-textarea
                     :value="replOutputText"
-                    outlined
+                    variant="outlined"
                     auto-grow
                     rows="23"
                     readonly
@@ -225,38 +224,32 @@ export default {
         </v-card>
     </v-dialog>
 
-    <v-tooltip
-        bottom>
-        <span>重新加载游戏数据</span>
-        <template v-slot:activator="{ on, attrs }">
-            <v-btn
-                style="top: 0px; right: 0px;"
-                color="pink"
-                dark
-                small
-                absolute
-                top
-                right
-                fab
-                v-bind="attrs"
-                v-on="on"
-                @click="initializeVariables">
-                <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-        </template>
-    </v-tooltip>
-
-    <v-card-text class="pt-2 pb-2 text-caption grey--text text--lighten-1 text-center">
+    <v-card-text class="pt-2 pb-2 text-caption text-grey-lighten-1 text-center">
         <a
             :href="versionUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="grey--text text--lighten-1"
+            class="text-grey-lighten-1"
             style="text-decoration: none;"
             @click="openVersionLink">
             {{ versionLabel }}
         </a>
     </v-card-text>
+    <v-tooltip
+        location="bottom">
+        <template #activator="{ props }">
+            <v-btn
+                color="pink"
+                size="small"
+                icon
+                style="position: absolute; top: 0px; right: 0px;"
+                v-bind="props"
+                @click="initializeVariables">
+                <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+        </template>
+        <span>重新加载游戏数据</span>
+    </v-tooltip>
 </v-card>
     `,
 
@@ -314,7 +307,7 @@ export default {
     },
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     this.disableReplGlobalKeyGuard();
     this.disablePopupEscapeKeyGuard();
   },
@@ -746,7 +739,7 @@ export default {
     },
 
     versionLabel() {
-      return `Commit ${RPGVERSION}, with Vue ${Vue.version} and Vuetify ${Vuetify.version}`;
+      return `Commit ${RPGVERSION}, Vue 3 + Vuetify 3`;
     },
 
     versionUrl() {

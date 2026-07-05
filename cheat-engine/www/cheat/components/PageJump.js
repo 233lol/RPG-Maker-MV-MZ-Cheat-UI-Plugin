@@ -8,20 +8,20 @@ export default {
     type="number"
     :min="1"
     :max="pageCount"
-    dense
+    density="compact"
     hide-details
     class="page-jump-input"
-    style="width: 38px; margin: 0 1px;"
+    style="width: 60px; max-width: 60px; margin: 0 1px;"
     @keydown.self.stop
     @keydown.enter="jump"
     @focus="$event.target.select()">
   </v-text-field>
   <v-btn
-    x-small
+    size="x-small"
     icon
     class="mx-0"
     @click="jump">
-    <v-icon x-small>mdi-arrow-right-bold</v-icon>
+    <v-icon size="x-small">mdi-arrow-right-bold</v-icon>
   </v-btn>
 </span>
   `,

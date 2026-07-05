@@ -9,33 +9,32 @@ export default {
   template: `
 <v-card flat class="ma-0 pa-0">
     <v-card-subtitle class="ma-0 pa-0">保存当前位置</v-card-subtitle>
-    <span class="body-2 green--text text--darken-1">地图 : {{currentMapName}}</span>
+    <span class="text-body-2 text-green-darken-1">地图 : {{currentMapName}}</span>
     <v-text-field
         ref="locationAliasField"
         label="位置别名"
-        solo
-        background-color="grey darken-3"
+        variant="solo"
+        bg-color="grey-darken-3"
         v-model="locationAliasInput"
-        dense
+        density="compact"
         hide-details
         @keydown.self.stop="onLocationAliasKeyDown"
         @focus="$event.target.select()">
-        <template v-slot:append-outer>
+        <template #append-outer>
             <v-tooltip
-                bottom>
-                <span>保存当前位置</span>
-                <template v-slot:activator="{ on, attrs }">
+                location="bottom">
+                <template #activator="{ props }">
                     <v-btn
                         class="mt-n1"
                         color="teal"
-                        x-small
-                        fab
-                        v-on="on"
-                        v-bind="attrs"
+                        size="x-small"
+                        icon
+                        v-bind="props"
                         @click="onAddLocation">
                         <v-icon>mdi-plus</v-icon>
                     </v-btn>
                 </template>
+                <span>保存当前位置</span>
             </v-tooltip>
         </template>
     </v-text-field>
@@ -44,95 +43,104 @@ export default {
     <v-data-table
         v-if="tableHeaders"
         class="mt-2"
-        denses
+        density="compact"
         :headers="tableHeaders"
         :items="tableItems"
         :search="search"
-        :custom-filter="tableItemFilter"
-        :options.sync="pagination">
-        <template v-slot:top>
+         :custom-filter="tableItemFilter"
+         v-model:page="pagination.page"
+         v-model:items-per-page="pagination.itemsPerPage"
+         :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
+        <template #top>
             <v-text-field
                 label="搜索..."
-                solo
-                background-color="grey darken-3"
+                variant="solo"
+                bg-color="grey-darken-3"
                 v-model="search"
-                dense
+                density="compact"
                 hide-details
                 @keydown.self.stop
                 @focus="$event.target.select()">
             </v-text-field>
         </template>
         <template
-            v-slot:item.coord="{ item }">
+            #item.coord="{ item }">
             {{ item.coord.x }}, {{ item.coord.y }}
         </template>
         <template
-            v-slot:item.actions="{ item, index }">
+            #item.actions="{ item, index }">
             
             <v-tooltip
-                bottom>
-                <span>传送</span>
-                <template v-slot:activator="{ on, attrs }">
+                location="bottom">
+                <template #activator="{ props }">
                     <v-btn
                         color="green"
-                        x-small
-                        fab
-                        v-bind="attrs"
-                        v-on="on"
+                        size="x-small"
+                        icon
+                        v-bind="props"
                         @click="teleportLocation(item.mapId, item.coord.x, item.coord.y)">
-                        <v-icon small>mdi-map-marker</v-icon>
+                        <v-icon size="small">mdi-map-marker</v-icon>
                     </v-btn>
                 </template>
+                <span>传送</span>
             </v-tooltip>
             
             
             <v-tooltip
-                bottom>
-                <span>删除</span>
-                <template v-slot:activator="{ on, attrs }">
+                location="bottom">
+                <template #activator="{ props }">
                     <v-btn
                         color="red"
                         class="ml-2"
-                        x-small
-                        fab
-                        v-bind="attrs"
-                        v-on="on"
+                        size="x-small"
+                        icon
+                        v-bind="props"
                         @click="removeLocation(index)">
-                        <v-icon small>mdi-delete</v-icon>
+                        <v-icon size="small">mdi-delete</v-icon>
                     </v-btn>
                 </template>
+                <span>删除</span>
             </v-tooltip>
         </template>
-        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-            <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
-            <page-jump
-                :page="pagination.page"
-                :page-count="pageCount"
-                @jump="jumpToPage">
-            </page-jump>
-        </template>
+         <template #bottom>
+             <div class="d-flex align-center justify-space-between pa-2">
+                 <div class="d-flex align-center">
+                     <span class="text-caption mr-2">每页</span>
+                     <v-select
+                         v-model="pagination.itemsPerPage"
+                         :items="[5, 10, 15, 20]"
+                         density="compact"
+                         hide-details
+                         variant="outlined"
+                         style="width: 90px;"
+                     ></v-select>
+                 </div>
+                 <div class="d-flex align-center ga-2">
+                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
+                     <page-jump
+                         :page="pagination.page"
+                         :page-count="pageCount"
+                         @jump="jumpToPage">
+                     </page-jump>
+                 </div>
+             </div>
+         </template>
     </v-data-table>
-    
     <v-tooltip
-        bottom>
-        <span>重新加载游戏数据</span>
-        <template v-slot:activator="{ on, attrs }">
+        location="bottom">
+        <template #activator="{ props }">
             <v-btn
-                style="top: 0px; right: 0px;"
                 color="pink"
-                dark
-                small
-                absolute
-                top
-                right
-                fab
-                v-bind="attrs"
-                v-on="on"
+                size="small"
+                icon
+                style="position: absolute; top: 0px; right: 0px;"
+                v-bind="props"
                 @click="initializeVariables">
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
         </template>
+        <span>重新加载游戏数据</span>
     </v-tooltip>
 </v-card>
     `,
@@ -149,20 +157,20 @@ export default {
 
       tableHeaders: [
         {
-          text: "别名",
-          value: "name",
+          title: "别名",
+          key: "name",
         },
         {
-          text: "地图名",
-          value: "mapName",
+          title: "地图名",
+          key: "mapName",
         },
         {
-          text: "坐标",
-          value: "coord",
+          title: "坐标",
+          key: "coord",
         },
         {
-          text: "操作",
-          value: "actions",
+          title: "操作",
+          key: "actions",
         },
       ],
       pagination: { page: 1, itemsPerPage: 5 },
@@ -199,6 +207,19 @@ export default {
 
         return true;
       });
+    },
+
+    totalCount() {
+      return this.tableItems.length;
+    },
+
+    paginationStart() {
+      if (this.totalCount === 0) return 0;
+      return (this.pagination.page - 1) * this.pagination.itemsPerPage + 1;
+    },
+
+    paginationStop() {
+      return Math.min(this.pagination.page * this.pagination.itemsPerPage, this.totalCount);
     },
 
     pageCount() {
@@ -295,9 +316,9 @@ export default {
       search = search.toLowerCase();
 
       return (
-        item.name.toLowerCase().contains(search) ||
-        item.mapName.toLowerCase().contains(search) ||
-        String(item.value).toLowerCase().contains(search)
+        item.name.toLowerCase().includes(search) ||
+        item.mapName.toLowerCase().includes(search) ||
+        String(item.value).toLowerCase().includes(search)
       );
     },
   },

@@ -20,13 +20,13 @@ export default {
             md="8">
             <v-text-field
                 label="搜索..."
-                solo
-                background-color="grey darken-3"
+                variant="solo"
+                bg-color="grey-darken-3"
                 v-model="search"
-                dense
+                density="compact"
                 hide-details
                 @keydown.self.stop
-                @input="onSearchChange"
+                @update:model-value="onSearchChange"
                 @focus="$event.target.select()">
             </v-text-field>
         </v-col>
@@ -37,8 +37,8 @@ export default {
                 v-model="shortcutSearch"
                 label="快捷键"
                 solo
-                dense
-                background-color="grey darken-3"
+                density="compact"
+                bg-color="grey-darken-3"
                 hide-details
                 combining-key-alone
                 @change="onShortcutSearchChange">
@@ -53,60 +53,60 @@ export default {
             label="隐藏描述">
         </v-checkbox>
         <v-tooltip
-            bottom>
-            <span>恢复默认设置</span>
-            <template v-slot:activator="{ on, attrs }">
+            location="bottom">
+            <template #activator="{ props }">
                 <v-btn
                     color="green"
-                    v-bind="attrs"
-                    v-on="on"
-                    x-small
-                    fab
+                    v-bind="props"
+                    size="x-small"
+                    icon
                     @click="restoreToDefault">
-                    <v-icon small>mdi-restore</v-icon>
+                    <v-icon size="small">mdi-restore</v-icon>
                 </v-btn>
             </template>
+            <span>恢复默认设置</span>
         </v-tooltip>
     </v-card-text>
     <v-data-table
         class="mt-2"
-        denses
+        density="compact"
         single-expand
         :headers="filteredHeaders"
-        :expanded.sync="tableExpanded"
+        v-model:expanded="tableExpanded"
         :items="filteredShortcuts"
         :search="search"
-        :custom-filter="tableItemFilter"
-        :options.sync="pagination">
+         :custom-filter="tableItemFilter"
+         v-model:page="pagination.page"
+         v-model:items-per-page="pagination.itemsPerPage"
+         :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
         <template
-            v-slot:item.shortcut="{ item }">
+            #item.shortcut="{ item }">
             <key-input-field
                 style="width: 170px;"
                 v-model="item.shortcut"
                 :deletable="!item.necessary"
                 label="未分配快捷键"
                 solo
-                dense
-                background-color="grey darken-3"
+                density="compact"
+                bg-color="grey-darken-3"
                 :combining-key-alone="item.combiningKeyAlone"
                 hide-details
                 @change="onShortcutChange($event, item)">
             </key-input-field>
         </template>
         <template
-            v-slot:item.param="{ item, index }">
+            #item.param="{ item, index }">
             <v-btn
                 v-if="Object.keys(item.paramDesc).length > 0"
                 color="blue-grey"
-                dark
-                x-small
-                fab
+                size="x-small"
+                icon
                 @click="changeExpanded(item)">
-                <v-icon small>mdi-cog</v-icon>
+                <v-icon size="small">mdi-cog</v-icon>
             </v-btn>
         </template>
-        <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length" class="ma-0 pa-0">
+        <template #expanded-row="{ columns, item }">
+            <td :colspan="columns.length" class="ma-0 pa-0 pl-0">
                 <v-card 
                     flat
                     class="ma-0 py-2 px-0"
@@ -127,8 +127,8 @@ export default {
                                 md="3">
                                 <v-text-field
                                     v-model="item.param[paramKey].value"
-                                    outlined
-                                    dense
+                                    variant="outlined"
+                                    density="compact"
                                     hide-details
                                     @keydown.self.stop
                                     @change="onParameterChange($event, item, paramKey)"
@@ -147,15 +147,30 @@ export default {
                 </v-card>
             </td>
         </template>
-        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-            <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
-            <page-jump
-                :page="pagination.page"
-                :page-count="pageCount"
-                @jump="jumpToPage">
-            </page-jump>
-        </template>
+         <template #bottom>
+             <div class="d-flex align-center justify-space-between pa-2">
+                 <div class="d-flex align-center">
+                     <span class="text-caption mr-2">每页</span>
+                     <v-select
+                         v-model="pagination.itemsPerPage"
+                         :items="[5, 10, 15, 20]"
+                         density="compact"
+                         hide-details
+                         variant="outlined"
+                         style="width: 70px;"
+                     ></v-select>
+                 </div>
+                 <div class="d-flex align-center ga-2">
+                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
+                     <page-jump
+                         :page="pagination.page"
+                         :page-count="pageCount"
+                         @jump="jumpToPage">
+                     </page-jump>
+                 </div>
+             </div>
+         </template>
     </v-data-table>
 </v-card>
     `,
@@ -172,20 +187,20 @@ export default {
 
       tableHeaders: [
         {
-          text: "名称",
-          value: "name",
+          title: "名称",
+          key: "name",
         },
         {
-          text: "描述",
-          value: "desc",
+          title: "描述",
+          key: "desc",
         },
         {
-          text: "快捷键",
-          value: "shortcut",
+          title: "快捷键",
+          key: "shortcut",
         },
         {
-          text: "参数",
-          value: "param",
+          title: "参数",
+          key: "param",
         },
       ],
       pagination: { page: 1, itemsPerPage: 5 },
@@ -199,7 +214,7 @@ export default {
   computed: {
     filteredHeaders() {
       return this.tableHeaders.filter(
-        (header) => !this.hideDesc || header.value !== "desc",
+        (header) => !this.hideDesc || header.key !== "desc",
       );
     },
 
@@ -210,6 +225,19 @@ export default {
           item.shortcut.contains(this.shortcutSearch)
         );
       });
+    },
+
+    totalCount() {
+      return this.filteredShortcuts.length;
+    },
+
+    paginationStart() {
+      if (this.totalCount === 0) return 0;
+      return (this.pagination.page - 1) * this.pagination.itemsPerPage + 1;
+    },
+
+    paginationStop() {
+      return Math.min(this.pagination.page * this.pagination.itemsPerPage, this.totalCount);
     },
 
     pageCount() {
@@ -307,9 +335,9 @@ export default {
 
       search = search.toLowerCase();
       return (
-        item.name.toLowerCase().contains(search) ||
-        item.desc.toLowerCase().contains(search) ||
-        item.shortcut.asDisplayString().toLowerCase().contains(search)
+        item.name.toLowerCase().includes(search) ||
+        item.desc.toLowerCase().includes(search) ||
+        item.shortcut.asDisplayString().toLowerCase().includes(search)
       );
     },
   },

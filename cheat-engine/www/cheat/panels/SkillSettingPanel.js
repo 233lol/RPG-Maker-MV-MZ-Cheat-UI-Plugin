@@ -1,25 +1,29 @@
+import PageJump from "../components/PageJump.js";
+
 export default {
   name: "SkillSettingPanel",
+
+  components: { PageJump },
 
   template: `
 <v-card flat class="ma-0 pa-0">
     <v-tabs
         v-model="selectedTab"
-        dark
-        background-color="grey darken-3"
+        bg-color="grey-darken-3"
         show-arrows>
         <v-tab
             v-for="actor in actors"
-            :key="actor.id">
+            :key="actor.id"
+            :value="actor.id">
             {{actor.name}}
         </v-tab>
     </v-tabs>
-    <v-tabs-items
-        dark
+    <v-window
         v-model="selectedTab">
-        <v-tab-item
+        <v-window-item
             v-for="actor in actors"
-            :key="actor.id">
+            :key="actor.id"
+            :value="actor.id">
             <v-card
                 flat
                 class="ma-0">
@@ -27,109 +31,107 @@ export default {
                     class="pa-0">
                     <v-checkbox
                         v-model="actor.onlyLearned"
-                        dense
+                        density="compact"
                         hide-details
                         label="只显示已学习技能"
                         @change="onFilterChange">
                     </v-checkbox>
                     <v-spacer></v-spacer>
                     <v-tooltip
-                        bottom>
-                        <span>重新加载游戏数据</span>
-                        <template v-slot:activator="{ on, attrs }">
+                        location="bottom">
+                        <template #activator="{ props }">
                             <v-btn
                                 color="pink"
-                                dark
-                                small
-                                fab
-                                v-bind="attrs"
-                                v-on="on"
+                                size="small"
+                                icon
+                                variant="elevated"
+                                v-bind="props"
                                 @click="initializeVariables">
                                 <v-icon>mdi-refresh</v-icon>
                             </v-btn>
                         </template>
+                        <span>重新加载游戏数据</span>
                     </v-tooltip>
                 </v-card-actions>
 
                 <v-text-field
                     label="搜索技能..."
-                    solo
-                    background-color="grey darken-3"
+                    variant="solo"
+                    bg-color="grey-darken-3"
                     v-model="actor.skillSearch"
-                    dense
+                    density="compact"
                     hide-details
                     @keydown.self.stop
                     @focus="$event.target.select()">
                 </v-text-field>
 
                 <v-data-table
-                    dense
+                    density="compact"
                     :headers="skillHeaders"
                     :items="getFilteredSkills(actor)"
-                    :options.sync="actor.pagination"
+                    v-model:page="actor.pagination.page"
+                    v-model:items-per-page="actor.pagination.itemsPerPage"
+                    :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]"
                     no-data-text="没有匹配的技能"
                     class="mt-2">
-                    <template
-                        v-slot:item.isLearned="{ item }">
+                    <template #header.isLearned="{ column }">
+                        <span class="text-no-wrap">{{ column.title }}</span>
+                    </template>
+                    <template #item.isLearned="{ item }">
                         <v-icon
-                            small
+                            size="small"
                             :color="item.isLearned ? 'green' : 'grey darken-2'">
                             {{item.isLearned ? 'mdi-check-circle' : 'mdi-circle-outline'}}
                         </v-icon>
                     </template>
-                    <template
-                        v-slot:item.actions="{ item }">
+                    <template #item.actions="{ item }">
                         <v-btn
                             v-if="item.isLearned"
-                            small
+                            size="small"
                             color="error"
-                            dark
                             @click="removeSkill(actor, item)"
                             class="ma-0">
-                            <v-icon small>mdi-close</v-icon>
+                            <v-icon size="small">mdi-close</v-icon>
                             <span class="ml-1">移除</span>
                         </v-btn>
                         <v-btn
                             v-else
-                            small
+                            size="small"
                             color="success"
-                            dark
                             @click="addSkill(actor, item)"
                             class="ma-0">
-                            <v-icon small>mdi-plus</v-icon>
+                            <v-icon size="small">mdi-plus</v-icon>
                             <span class="ml-1">添加</span>
                         </v-btn>
                     </template>
-                    <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-                        <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-                        <span class="caption mr-1">第{{ actor.pagination.page }}/{{ Math.ceil(itemsLength / actor.pagination.itemsPerPage) }}页</span>
-                        <span class="d-inline-flex align-center">
-                            <v-text-field
-                                v-model="actor.jumpPageInput"
-                                type="number"
-                                min="1"
-                                :max="Math.ceil(itemsLength / actor.pagination.itemsPerPage)"
-                                dense
-                                hide-details
-                                class="page-jump-input"
-                                style="width: 38px; margin: 0 1px;"
-                                @keydown.self.stop
-                                @keydown.enter="jumpToPage(actor, actor.jumpPageInput)"
-                                @focus="$event.target.select()">
-                            </v-text-field>
-                            <v-btn
-                                x-small
-                                icon
-                                class="mx-0"
-                                @click="jumpToPage(actor, actor.jumpPageInput)">
-                                <v-icon x-small>mdi-arrow-right-bold</v-icon>
-                            </v-btn>
-                        </span>
+                    <template #bottom>
+                        <div class="d-flex align-center justify-space-between pa-2">
+                            <div class="d-flex align-center">
+                                <span class="text-caption mr-2">每页</span>
+                                <v-select
+                                    v-model="actor.pagination.itemsPerPage"
+                                    :items="[5, 10, 15, 20]"
+                                    density="compact"
+                                    hide-details
+                                    variant="outlined"
+                                    style="width: 90px;"
+                                ></v-select>
+                            </div>
+                            <div class="d-flex align-center ga-2">
+                                <span class="text-caption text-no-wrap">{{ paginationStartFor(actor) }}-{{ paginationStopFor(actor) }} / {{ totalCountFor(actor) }}</span>
+                                <v-pagination v-model="actor.pagination.page" :length="pageCountFor(actor)" density="compact" :total-visible="5" size="small"></v-pagination>
+                                <page-jump
+                                    :page="actor.pagination.page"
+                                    :page-count="pageCountFor(actor)"
+                                    @jump="(page) => jumpToPage(actor, page)">
+                                </page-jump>
+                            </div>
+                        </div>
                     </template>
                 </v-data-table>
             </v-card>
-        </v-tab-item>
-    </v-tabs-items>
+        </v-window-item>
+    </v-window>
 </v-card>
     `,
 
@@ -140,25 +142,25 @@ export default {
       allSkills: [],
       skillHeaders: [
         {
-          text: "已学",
-          value: "isLearned",
+          title: "已学",
+          key: "isLearned",
           sortable: false,
           align: "center",
-          width: "40px",
+          width: 50,
         },
         {
-          text: "名称",
-          value: "name",
+          title: "名称",
+          key: "name",
           sortable: true,
         },
         {
-          text: "描述",
-          value: "description",
+          title: "描述",
+          key: "description",
           sortable: false,
         },
         {
-          text: "操作",
-          value: "actions",
+          title: "操作",
+          key: "actions",
           sortable: false,
           align: "center",
         },
@@ -192,8 +194,7 @@ export default {
         onlyLearned: false,
         skillSearch: "",
         learnedSkillIds: learnedSkillIds,
-        pagination: { page: 1, itemsPerPage: 8 },
-        jumpPageInput: 1,
+        pagination: { page: 1, itemsPerPage: 5 },
       };
     },
 
@@ -237,15 +238,27 @@ export default {
         });
     },
 
-    jumpToPage(actor, val) {
-      const page = Number(val);
-      const pageCount = Math.ceil(
-        this.getFilteredSkills(actor).length / actor.pagination.itemsPerPage,
-      );
-      if (page >= 1 && page <= pageCount) {
-        actor.pagination.page = page;
-      }
-      actor.jumpPageInput = actor.pagination.page;
+    jumpToPage(actor, page) {
+      actor.pagination.page = page;
+    },
+
+    paginationStartFor(actor) {
+      const total = this.getFilteredSkills(actor).length;
+      if (total === 0) return 0;
+      return (actor.pagination.page - 1) * actor.pagination.itemsPerPage + 1;
+    },
+
+    paginationStopFor(actor) {
+      const total = this.getFilteredSkills(actor).length;
+      return Math.min(actor.pagination.page * actor.pagination.itemsPerPage, total);
+    },
+
+    totalCountFor(actor) {
+      return this.getFilteredSkills(actor).length;
+    },
+
+    pageCountFor(actor) {
+      return Math.ceil(this.getFilteredSkills(actor).length / actor.pagination.itemsPerPage) || 1;
     },
 
     onFilterChange() {

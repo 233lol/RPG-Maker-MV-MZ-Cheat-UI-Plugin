@@ -18,13 +18,13 @@ export default {
     <v-row class="mb-0 pa-0">
         <v-col cols="12">
             <div class="text-caption">
-                <v-chip x-small color="grey">灰色: 可行走</v-chip>
-                <v-chip x-small color="grey darken-3" class="ml-2">深灰: 不可行走</v-chip>
-                <v-chip x-small color="red" class="ml-2">红点: 角色位置</v-chip>
-                <v-chip x-small color="yellow" text-color="black" class="ml-2">EV: 事件位置</v-chip>
-                <v-chip x-small color="white" text-color="black" class="ml-2">白线: 地图边界</v-chip>
-                <v-chip x-small color="orange" class="ml-2">橙点: 敌人/可移动的事件位置</v-chip>
-                <v-chip x-small color="blue" class="ml-2">蓝点: 宝箱/道具变化的事件位置</v-chip>
+                <v-chip size="x-small" color="grey">灰色: 可行走</v-chip>
+                <v-chip size="x-small" color="grey-darken-3" class="ml-2">深灰: 不可行走</v-chip>
+                <v-chip size="x-small" color="red" class="ml-2">红点: 角色位置</v-chip>
+                <v-chip size="x-small" color="yellow" text-color="black" class="ml-2">EV: 事件位置</v-chip>
+                <v-chip size="x-small" color="white" text-color="black" class="ml-2">白线: 地图边界</v-chip>
+                <v-chip size="x-small" color="orange" class="ml-2">橙点: 敌人/可移动的事件位置</v-chip>
+                <v-chip size="x-small" color="blue" class="ml-2">蓝点: 宝箱/道具变化的事件位置</v-chip>
             </div>
         </v-col>
     </v-row>
@@ -42,22 +42,22 @@ export default {
             <v-text-field
                 v-model="currentMapId"
                 label="当前地图 ID"
-                dense
+                density="compact"
                 readonly
-                background-color="grey darken-3"
+                bg-color="grey-darken-3"
                 hide-details
-                outlined>
+                variant="outlined">
             </v-text-field>
         </v-col>
         <v-col cols="12" md="4">
             <v-text-field
                 v-model="readInterval"
                 label="读取间隔 (100-1000ms)"
-                dense
+                density="compact"
                 type="number"
-                background-color="grey darken-3"
+                bg-color="grey-darken-3"
                 hide-details
-                outlined>
+                variant="outlined">
             </v-text-field>
         </v-col>
     </v-row>
@@ -169,7 +169,7 @@ export default {
     },
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     // Clean up observer and interval when component is destroyed
     try {
       if (

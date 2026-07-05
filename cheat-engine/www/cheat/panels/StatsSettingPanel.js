@@ -7,21 +7,21 @@ export default {
 <v-card flat class="ma-0 pa-0">
     <v-tabs
         v-model="selectedTab"
-        dark
-        background-color="grey darken-3"
+        bg-color="grey-darken-3"
         show-arrows>
         <v-tab
             v-for="actor in actors"
-            :key="actor.id">
+            :key="actor.id"
+            :value="actor.id">
             {{actor.name}}
         </v-tab>
     </v-tabs>
-    <v-tabs-items
-        dark
+    <v-window
         v-model="selectedTab">
-        <v-tab-item
+        <v-window-item
             v-for="actor in actors"
-            :key="actor.id">
+            :key="actor.id"
+            :value="actor.id">
             <v-card
                 flat
                 class="ma-0">
@@ -34,20 +34,19 @@ export default {
                     </v-checkbox>
                     <v-spacer></v-spacer>
                     <v-tooltip
-                        bottom>
-                        <span>重新加载游戏数据</span>
-                        <template v-slot:activator="{ on, attrs }">
+                        location="bottom">
+                        <template #activator="{ props }">
                             <v-btn
                                 color="pink"
-                                dark
-                                small
-                                fab
-                                v-bind="attrs"
-                                v-on="on"
+                                size="small"
+                                icon
+                                variant="elevated"
+                                v-bind="props"
                                 @click="initializeVariables">
                                 <v-icon>mdi-refresh</v-icon>
                             </v-btn>
                         </template>
+                        <span>重新加载游戏数据</span>
                     </v-tooltip>
                 </v-card-actions>
                 <v-card-subtitle class="pa-0">等级 / 经验</v-card-subtitle>
@@ -56,8 +55,8 @@ export default {
                         <v-text-field
                             label="Lv"
                             v-model="actor.level"
-                            outlined
-                            dense
+                            variant="outlined"
+                            density="compact"
                             hide-details
                             @keydown.self.stop
                             @change="onLevelChange(actor)"
@@ -67,8 +66,8 @@ export default {
                         <v-text-field
                             label="EXP"
                             v-model="actor.exp"
-                            outlined
-                            dense
+                            variant="outlined"
+                            density="compact"
                             hide-details
                             @keydown.self.stop
                             @change="onExpChange(actor)"
@@ -86,8 +85,8 @@ export default {
                         <v-text-field
                             :label="paramNames[paramIdx]"
                             v-model="actor.param[paramIdx]"
-                            outlined
-                            dense
+                            variant="outlined"
+                            density="compact"
                             hide-details
                             @keydown.self.stop
                             @change="onParamChange(actor, paramIdx)"
@@ -95,8 +94,8 @@ export default {
                     </v-col>
                 </v-row>
             </v-card>
-        </v-tab-item>
-    </v-tabs-items>
+        </v-window-item>
+    </v-window>
 </v-card>
     `,
 

@@ -9,29 +9,31 @@ export default {
 <v-card flat class="ma-0 pa-0">
     <v-row>
         <v-col
-            cols="12"
+            cols="6"
             md="6">
             <v-text-field
                 v-model="inputX"
                 label="X"
-                dense
-                background-color="grey darken-3"
+                style="max-width: 100px; margin-top: 8px;"
+                density="compact"
+                bg-color="grey-darken-3"
                 hide-details
-                outlined
+                variant="outlined"
                 @keydown.self.stop
                 @focus="$event.target.select()">
             </v-text-field>
         </v-col>
         <v-col
-            cols="12"
+            cols="6"
             md="6">
             <v-text-field
                 v-model="inputY"
                 label="Y"
-                dense
-                background-color="grey darken-3"
+                style="max-width: 100px; margin-top: 8px;"
+                density="compact"
+                bg-color="grey-darken-3"
                 hide-details
-                outlined
+                variant="outlined"
                 @keydown.self.stop
                 @focus="$event.target.select()">
             </v-text-field>
@@ -41,19 +43,21 @@ export default {
     <v-data-table
         v-if="tableHeaders"
         class="mt-2"
-        denses
+        density="compact"
         :headers="filteredTableHeaders"
         :items="maps"
         :search="search"
-        :custom-filter="tableItemFilter"
-        :options.sync="pagination">
-        <template v-slot:top>
+         :custom-filter="tableItemFilter"
+         v-model:page="pagination.page"
+         v-model:items-per-page="pagination.itemsPerPage"
+         :items-per-page-options="[5, 10, 15, { title: 'All', value: -1 }]">
+        <template #top>
             <v-text-field
                 label="搜索..."
-                solo
-                background-color="grey darken-3"
+                variant="solo"
+                bg-color="grey-darken-3"
                 v-model="search"
-                dense
+                density="compact"
                 hide-details
                 @keydown.self.stop
                 @focus="$event.target.select()">
@@ -64,37 +68,51 @@ export default {
             </v-checkbox>
         </template>
         <template
-            v-slot:item.fullPath="{ item }">
+            #item.fullPath="{ item }">
             {{item.fullPathJoin}}
         </template>
         <template
-            v-slot:item.actions="{ item, index }">
+            #item.actions="{ item, index }">
             <v-tooltip
-                bottom>
-                <span>传送</span>
-                <template v-slot:activator="{ on, attrs }">
+                location="bottom">
+                <template #activator="{ props }">
                 
                     <v-btn
                         color="green"
-                        x-small
-                        fab
-                        v-bind="attrs"
-                        v-on="on"
+                        size="x-small"
+                        icon
+                        v-bind="props"
                         @click="teleportLocation(item.id, Number(inputX), Number(inputY))">
-                        <v-icon small>mdi-map-marker</v-icon>
+                        <v-icon size="small">mdi-map-marker</v-icon>
                     </v-btn>
                 </template>
+                <span>传送</span>
             </v-tooltip>
         </template>
-        <template v-slot:footer.page-text="{ pageStart, pageStop, itemsLength }">
-            <span class="caption mr-1">{{ pageStart }}-{{ pageStop }}/{{ itemsLength }}</span>
-            <span class="caption mr-1">第{{ pagination.page }}/{{ pageCount }}页</span>
-            <page-jump
-                :page="pagination.page"
-                :page-count="pageCount"
-                @jump="jumpToPage">
-            </page-jump>
-        </template>
+         <template #bottom>
+             <div class="d-flex align-center justify-space-between pa-2">
+                 <div class="d-flex align-center">
+                     <span class="text-caption mr-2">每页</span>
+                     <v-select
+                         v-model="pagination.itemsPerPage"
+                         :items="[5, 10, 15, 20]"
+                         density="compact"
+                         hide-details
+                         variant="outlined"
+                         style="width: 90px;"
+                     ></v-select>
+                 </div>
+                 <div class="d-flex align-center ga-2">
+                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
+                     <page-jump
+                         :page="pagination.page"
+                         :page-count="pageCount"
+                         @jump="jumpToPage">
+                     </page-jump>
+                 </div>
+             </div>
+         </template>
     </v-data-table>
 </v-card>
     `,
@@ -113,20 +131,20 @@ export default {
 
       tableHeaders: [
         {
-          text: "ID",
-          value: "id",
+          title: "ID",
+          key: "id",
         },
         {
-          text: "名称",
-          value: "name",
+          title: "名称",
+          key: "name",
         },
         {
-          text: "完整路径",
-          value: "fullPath",
+          title: "完整路径",
+          key: "fullPath",
         },
         {
-          text: "操作",
-          value: "actions",
+          title: "操作",
+          key: "actions",
         },
       ],
     };
@@ -140,11 +158,24 @@ export default {
     filteredTableHeaders() {
       if (this.excludeFullPath) {
         return this.tableHeaders.filter(
-          (header) => header.value !== "fullPath",
+          (header) => header.key !== "fullPath",
         );
       }
 
       return this.tableHeaders;
+    },
+
+    totalCount() {
+      return this.maps.length;
+    },
+
+    paginationStart() {
+      if (this.totalCount === 0) return 0;
+      return (this.pagination.page - 1) * this.pagination.itemsPerPage + 1;
+    },
+
+    paginationStop() {
+      return Math.min(this.pagination.page * this.pagination.itemsPerPage, this.totalCount);
     },
 
     pageCount() {
@@ -206,9 +237,9 @@ export default {
       search = search.toLowerCase();
 
       return (
-        item.name.toLowerCase().contains(search) ||
-        item.fullPathJoin.toLowerCase().contains(search) ||
-        String(item.id).toLowerCase().contains(search)
+        item.name.toLowerCase().includes(search) ||
+        item.fullPathJoin.toLowerCase().includes(search) ||
+        String(item.id).toLowerCase().includes(search)
       );
     },
   },

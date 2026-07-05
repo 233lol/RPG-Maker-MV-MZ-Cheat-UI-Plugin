@@ -5,10 +5,9 @@ export default {
   template: `
   <v-dialog v-model="showDialog" v-if="options" :width="options.width">
     <v-card
-        dark 
         class="pt-4">
       <v-card-text
-        class="subtitle-1">
+        class="text-subtitle-1">
         <template v-for="(msg, idx) in messageArray">
           <span :key="idx">{{msg}}</span>
           <br :key="-idx - 1"/>
@@ -20,7 +19,7 @@ export default {
         <v-btn
           v-for="(action, idx) in options.actions"
           :key="idx"
-          text
+          variant="text"
           class="font-weight-bold"
           :color="action.color"
           @click="action.action">

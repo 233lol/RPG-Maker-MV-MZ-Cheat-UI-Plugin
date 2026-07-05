@@ -1,13 +1,11 @@
 import { Alert } from "../js/AlertHelper.js";
 
 export default {
-  name: "ShortcutPanel",
+  name: "AlertSnackbar",
 
   template: `
 <v-snackbar
-    app
-    top
-    left
+    location="top left"
     :color="color"
     v-model="showSnackbar"
     :timeout="timeout"
@@ -15,18 +13,18 @@ export default {
     <span 
         v-for="(line, idx) in text"
         :key="idx"
-        class="font-weight-bold caption d-block">
+        class="font-weight-bold text-caption d-block">
         {{ line }}
     </span>
-    <template v-slot:action="{ attrs }">
+    <template #actions="{ props }">
     <v-btn
-        x-small
+        size="x-small"
         style="margin:0"
         color="white"
         icon
-        v-bind="attrs"
+        v-bind="props"
         @click="showSnackbar = false">
-        <v-icon small>mdi-close</v-icon>
+        <v-icon size="small">mdi-close</v-icon>
     </v-btn>
     </template>
 </v-snackbar>
