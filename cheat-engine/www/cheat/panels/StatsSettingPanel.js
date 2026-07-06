@@ -30,7 +30,7 @@ export default {
                     <v-checkbox
                         v-model="actor.godMode"
                         label="无敌模式"
-                        @change="onGodModeChange(actor)">
+                        @update:model-value="onGodModeChange(actor)">
                     </v-checkbox>
                     <v-spacer></v-spacer>
                     <v-tooltip
@@ -157,7 +157,9 @@ export default {
 
     onGodModeChange(item) {
       GeneralCheat.toggleGodMode(item._actor);
-      this.initializeVariables();
+      this.$nextTick(() => {
+        this.initializeVariables();
+      });
     },
   },
 };

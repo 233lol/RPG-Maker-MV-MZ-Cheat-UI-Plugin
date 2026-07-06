@@ -83,7 +83,7 @@ export default {
                 style="width: 170px;"
                 v-model="item.shortcut"
                 :deletable="!item.necessary"
-                label="未分配快捷键"
+                :label="item.shortcut.isEmpty() ? '未分配快捷键' : '快捷键'"
                 solo
                 density="compact"
                 bg-color="grey-darken-3"

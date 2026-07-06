@@ -11,7 +11,7 @@ export default {
     :bg-color="backgroundColor"
     density="compact"
     hide-details
-    @keydown.self.stop.prevent="onShortcutInput"
+    @keydown.stop.prevent="onShortcutInput"
     @focus="$event.target.select()">
     <template #append>
         <v-btn 
@@ -26,6 +26,8 @@ export default {
     </template>
 </v-text-field>
     `,
+
+  emits: ["update:modelValue", "change"],
 
   data() {
     return {};

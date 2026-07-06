@@ -152,7 +152,6 @@ export class GeneralCheat {
         actor.gainTp(actor.maxTp());
       }, 1000);
 
-      this.saveCheatSettings();
     }
   }
 
@@ -175,8 +174,6 @@ export class GeneralCheat {
         actor.setTp = actor.setTp_bkup;
         actor.paySkillCost = actor.paySkillCost_bkup;
       }
-
-      this.saveCheatSettings();
     }
   }
 
