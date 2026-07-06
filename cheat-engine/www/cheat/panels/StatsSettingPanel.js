@@ -1,4 +1,5 @@
 import { GeneralCheat } from "../js/CheatHelper.js";
+import { markRaw } from "../libs/vue.js";
 
 export default {
   name: "StatsSettingPanel",
@@ -30,7 +31,7 @@ export default {
                     <v-checkbox
                         v-model="actor.godMode"
                         label="无敌模式"
-                        @update:model-value="onGodModeChange(actor)">
+                        @change="onGodModeChange(actor)">
                     </v-checkbox>
                     <v-spacer></v-spacer>
                     <v-tooltip
@@ -122,12 +123,12 @@ export default {
       }
 
       return {
-        _actor: actor,
+        _actor: markRaw(actor),
         id: actor._actorId,
         name: actor._name,
         godMode: GeneralCheat.isGodMode(actor),
         level: actor.level,
-        exp: actor.currentExp(), // actor._exp contains exp data for each class (_exp[classId] = exp)
+        exp: actor.currentExp(),
         param: param,
       };
     },
@@ -157,9 +158,7 @@ export default {
 
     onGodModeChange(item) {
       GeneralCheat.toggleGodMode(item._actor);
-      this.$nextTick(() => {
-        this.initializeVariables();
-      });
+      this.initializeVariables();
     },
   },
 };
