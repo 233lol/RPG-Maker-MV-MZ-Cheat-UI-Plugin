@@ -48,7 +48,7 @@ export default {
             :thumb-label="true"
             thumb-color="red"
             hide-details
-            @change="onSpeedChange">
+            @end="onSpeedChange">
             <template #prepend>
                 <span class="text-grey-lighten-1 align-self-center mr-2 text-body-2" style="white-space: nowrap;">移动速度</span>
                 <v-icon color="grey lighten-3" @click="addSpeed(-stepSpeed)">mdi-chevron-left</v-icon>
@@ -76,7 +76,7 @@ export default {
             :thumb-label="true"
             thumb-color="red"
             hide-details
-            @change="onGameSpeedChange">
+            @end="onGameSpeedChange">
             <template #prepend>
                 <span class="text-grey-lighten-1 align-self-center mr-2 d-inline-block text-body-2" style="white-space: nowrap;">游戏速度</span>
                 <v-icon color="grey lighten-3" @click="addGameSpeed(-stepGameSpeed)">mdi-chevron-left</v-icon>
