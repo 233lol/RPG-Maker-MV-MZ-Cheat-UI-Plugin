@@ -576,7 +576,7 @@ export class MessageCheat {
       Window_Message.prototype.updateShowFast;
     Window_Message.prototype.updateShowFast = function () {
       _Window_Message_updateShowFast.call(this);
-      // 여기에 skip 키 입력 체크
+
       if (MessageCheat.skip) {
         this._showFast = true;
         this._pauseSkip = true;
@@ -608,14 +608,14 @@ export class MessageCheat {
       let ret = Window_ScrollText_scrollSpeed.call(this);
 
       if (MessageCheat.skip) {
-        // 여기에서 skip 키 입력 체크
+
         ret *= 100;
       }
 
       return ret;
     };
 
-    // --------------------------- 배틀 로그 관련
+
     // Accelerates the battle log output speed
     const _Window_BattleLog_messageSpeed =
       Window_BattleLog.prototype.messageSpeed;
@@ -623,7 +623,7 @@ export class MessageCheat {
       let ret = _Window_BattleLog_messageSpeed.call(this);
 
       if (MessageCheat.skip) {
-        // 여기에서 skip 키 입력 체크
+
         ret = 1;
       }
 
