@@ -69,7 +69,7 @@ export default {
                 actions: [{
                     icon: 'mdi-close',
                     iconRight: false,
-                    label: '취소',
+                    label: '取消',
                     color: 'red',
                     action: this.close
                 }]

@@ -55,7 +55,7 @@ export const CHAR_TO_CODE= {
     "X":88,
     "Y":89,
     "Z":90,
-    "Meta":91, // 윈도우 키
+    "Meta":91,
     "RightClick":93,
     "Numpad0":96,
     "Numpad1":97,
@@ -143,7 +143,7 @@ export class Key {
 
         const keys = text.toLowerCase().split(' ')
         if (keys.length === 0) {
-            throw Error('키맵이 없음.')
+            throw Error('没有键位映射.')
         }
 
         let code = null
@@ -170,10 +170,10 @@ export class Key {
                     break
                 default:
                     if (code !== null) {
-                        throw Error('여러 일반키를 조합할 수 없습니다.')
+                        throw Error('不能组合多个普通按键.')
                     }
                     if (!Object.hasOwnProperty.call(CHAR_TO_CODE_LOWERCASE, key)) {
-                        throw Error('알 수 없는 키입니다. : ' + key)
+                        throw Error('这是未知的按键 : ' + key)
                     }
                     code = CHAR_TO_CODE_LOWERCASE[key]
             }
