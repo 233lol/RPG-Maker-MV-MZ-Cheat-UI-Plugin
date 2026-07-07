@@ -266,9 +266,16 @@ export default {
 
     onItemChange(item, newValue) {
       const v = $gameVariables.value(item.id);
-      typeof v === "number"
-        ? $gameVariables.setValue(item.id, Number(newValue))
-        : $gameVariables.setValue(item.id, newValue);
+      if (typeof v === "number") {
+        const num = Number(newValue);
+        if (!Number.isFinite(num)) {
+          item.value = v;
+          return;
+        }
+        $gameVariables.setValue(item.id, num);
+      } else {
+        $gameVariables.setValue(item.id, newValue);
+      }
 
       item.value = $gameVariables.value(item.id);
       if (item.lockEnabled) {

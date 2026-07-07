@@ -87,12 +87,12 @@ export default {
             _member: member,
             name: member.name(),
             hp: {
-              hp: member.hp,
-              mhp: member.mhp,
+              hp: Number(member.hp),
+              mhp: Number(member.mhp),
             },
             mp: {
-              mp: member.mp,
-              mmp: member.mmp,
+              mp: Number(member.mp),
+              mmp: Number(member.mmp),
             },
           };
         });

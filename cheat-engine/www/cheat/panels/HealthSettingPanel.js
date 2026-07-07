@@ -162,8 +162,14 @@ export default {
       if (!Array.isArray(items)) return;
       for (const item of items) {
         const member = item._member;
-        member.setHp(Number(item.hp.hp));
-        member.setMp(Number(item.mp.mp));
+        const hp = Number(item.hp.hp);
+        const mp = Number(item.mp.mp);
+        if (Number.isFinite(hp)) {
+          member.setHp(hp);
+        }
+        if (Number.isFinite(mp)) {
+          member.setMp(mp);
+        }
       }
       this.initializeVariables();
     },

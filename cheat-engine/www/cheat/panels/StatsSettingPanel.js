@@ -141,17 +141,28 @@ export default {
     },
 
     onLevelChange(item) {
-      item._actor.changeLevel(Number(item.level), false);
+      const level = Number(item.level);
+      if (Number.isFinite(level) && level >= 1) {
+        item._actor.changeLevel(level, false);
+      }
       this.initializeVariables();
     },
 
     onExpChange(item) {
-      item._actor.changeExp(Number(item.exp), false);
+      const exp = Number(item.exp);
+      if (Number.isFinite(exp) && exp >= 0) {
+        item._actor.changeExp(exp, false);
+      }
       this.initializeVariables();
     },
 
     onParamChange(item, paramIndex) {
-      const diff = item.param[paramIndex] - item._actor.param(paramIndex);
+      const newVal = Number(item.param[paramIndex]);
+      if (!Number.isFinite(newVal)) {
+        this.initializeVariables();
+        return;
+      }
+      const diff = newVal - item._actor.param(paramIndex);
       item._actor.addParam(paramIndex, diff);
       this.initializeVariables();
     },

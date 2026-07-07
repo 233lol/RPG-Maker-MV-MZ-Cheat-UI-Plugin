@@ -234,6 +234,9 @@ export default {
     },
 
     teleportLocation(mapId, x, y) {
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        return;
+      }
       $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
       $gamePlayer.setPosition(x, y);
     },

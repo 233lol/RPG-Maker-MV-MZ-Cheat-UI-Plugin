@@ -214,12 +214,16 @@ export default {
     },
 
     onItemChange(item) {
-      // modify amount
+      const amount = Number(item.amount);
+      if (!Number.isFinite(amount)) {
+        item.amount = $gameParty.numItems(toRaw(item._item));
+        return;
+      }
+
       const rawItem = toRaw(item._item);
-      const diff = item.amount - $gameParty.numItems(rawItem);
+      const diff = Math.floor(amount) - $gameParty.numItems(rawItem);
       $gameParty.gainItem(rawItem, diff);
 
-      // refresh
       item.amount = $gameParty.numItems(rawItem);
     },
 
