@@ -6,7 +6,7 @@ function validateNwjsVersion() {
   const nwjsVersion = process.versions["node-webkit"];
   const minRequiredNwjsVersion = "0.44.0";
 
-  const lowVersion = nwjsVersion.localeCompare(minRequiredNwjsVersion, undefined, { numeric: true }) <0;
+  const lowVersion = nwjsVersion.localeCompare(minRequiredNwjsVersion, undefined, { numeric: true }) < 0;
 
   if (lowVersion) {
     let msg = "";
