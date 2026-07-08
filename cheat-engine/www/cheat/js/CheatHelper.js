@@ -281,7 +281,9 @@ export class GameSpeedCheat {
 
         // update duplicated frames
         for (let i = 0; i < currStep - 1; ++i) {
-          SceneManager.updateInputData();
+          if (SceneManager.updateInputData) {
+            SceneManager.updateInputData();
+          }
           SceneManager.changeScene();
           SceneManager_updateScene.call(this);
         }
@@ -348,7 +350,9 @@ export class SpeedCheat {
   }
 
   static __setSpeed(speed) {
-    $gamePlayer.setMoveSpeed(speed);
+    if ($gamePlayer) {
+      $gamePlayer.setMoveSpeed(speed);
+    }
   }
 
   static setSpeed(speed, fixed = false) {
@@ -376,7 +380,16 @@ export class SpeedCheat {
       return;
     }
 
-    const data = JSON.parse(json);
+    let data;
+    try {
+      data = JSON.parse(json);
+    } catch (e) {
+      return;
+    }
+
+    if (typeof data.speed !== "number" || !Number.isFinite(data.speed)) {
+      return;
+    }
 
     if (data.fixed) {
       SpeedCheat.setSpeed(data.speed, data.fixed);
