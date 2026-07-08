@@ -27,13 +27,13 @@ No tests, linter, typechecker, or tsconfig (all source is plain JS except `tools
 
 | Path | Purpose |
 |---|---|
-| `cheat-engine/www/cheat/` | Cheat UI source. Vue 2 + Vuetify 2, ES module JS files. |
+| `cheat-engine/www/cheat/` | Cheat UI source. Vue 3 + Vuetify 3, ES module JS files. |
 | `cheat-engine/www/_cheat_initialize/mv/` | MV-specific `main.js` replacement |
 | `cheat-engine/www/_cheat_initialize/mz/` | MZ-specific `main.js` replacement |
 | `tools/` | Shiki bundle dev tooling |
 
-The cheat replaces the game's `main.js` with a version that loads `cheat/init/import.js` → `cheat/init/setup.js` (ES module) → mounts Vue 2 `MainComponent`.
+The cheat replaces the game's `main.js` with a version that loads `cheat/init/import.js` → `cheat/init/setup.js` (ES module) → mounts Vue 3 `MainComponent`.
 
 ## CI
 
-GitHub Actions on push to `main` (paths: `cheat-engine/**`, `package.json`, `package-lock.json`). Uploads both `.tar.gz` archives as a zip artifact.
+GitHub Actions on push to `main` or `vue-3` (paths: `cheat-engine/**`, `package.json`, `package-lock.json`), plus manual `workflow_dispatch`. Uploads both `.tar.gz` archives as a zip artifact.

@@ -1,10 +1,16 @@
 export function cloneObject(obj) {
-  const clone = {};
-  for (const key in obj) {
-    if (typeof obj[key] == "object" && obj[key] !== null) {
-      clone[key] = cloneObject(obj[key]);
+  if (obj === null || typeof obj !== "object") {
+    return obj;
+  }
+
+  const clone = Array.isArray(obj) ? [] : {};
+
+  for (const key of Object.keys(obj)) {
+    const val = obj[key];
+    if (val !== null && typeof val === "object") {
+      clone[key] = cloneObject(val);
     } else {
-      clone[key] = obj[key];
+      clone[key] = val;
     }
   }
 

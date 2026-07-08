@@ -107,6 +107,7 @@ export default {
       // Visibility and runtime control
       isCanvasVisible: false, // whether the canvas is currently visible in viewport
       visibilityObserver: null, // IntersectionObserver instance (if any)
+      needsRedraw: true, // dirty flag: only redraw canvas when game state changed
       renderIntervalId: null, // id returned from setInterval for periodic updates
       readInterval: this.loadSetting("mapEventPanel_readInterval", 500), // Interval in ms for reading game data
     };
@@ -162,8 +163,9 @@ export default {
         this.checkForMapChange();
         this.updatePlayerPosition();
         this.updateEnemyPositions();
-        if (this.isCanvasVisible) {
+        if (this.isCanvasVisible && this.needsRedraw) {
           this.renderMap();
+          this.needsRedraw = false;
         }
       }, valid);
     },
@@ -247,11 +249,11 @@ export default {
       this.renderIntervalId = setInterval(() => {
         this.checkForMapChange();
         this.updatePlayerPosition();
-        this.updateEnemyPositions(); // Only update enemy positions, not full classification
+        this.updateEnemyPositions();
 
-        // Only perform expensive canvas rendering when visible
-        if (this.isCanvasVisible) {
+        if (this.isCanvasVisible && this.needsRedraw) {
           this.renderMap();
+          this.needsRedraw = false;
         }
       }, this.readInterval);
     },
@@ -372,8 +374,8 @@ export default {
     setCanvasVisible(visible) {
       if (this.isCanvasVisible === visible) return;
       this.isCanvasVisible = visible;
-      // When it becomes visible, trigger an immediate render to update canvas
       if (visible) {
+        this.needsRedraw = true;
         this.$nextTick(() => {
           if (this.mapData) this.renderMap();
         });
@@ -383,10 +385,12 @@ export default {
     updatePlayerPosition() {
       try {
         if ($gamePlayer) {
-          this.playerPosition = {
-            x: $gamePlayer.x,
-            y: $gamePlayer.y,
-          };
+          const newX = $gamePlayer.x;
+          const newY = $gamePlayer.y;
+          if (newX !== this.playerPosition.x || newY !== this.playerPosition.y) {
+            this.playerPosition = { x: newX, y: newY };
+            this.needsRedraw = true;
+          }
         }
       } catch (error) {
         console.warn("Could not get player position:", error);
@@ -562,16 +566,22 @@ export default {
 
     updateEnemyPositions() {
       try {
-        // Only update positions of existing enemies, don't reclassify
+        let changed = false;
         this.enemies.forEach((enemy) => {
           const gameEvent = $gameMap._events[enemy.id];
           if (gameEvent) {
+            if (enemy.x !== gameEvent._x || enemy.y !== gameEvent._y ||
+                enemy.direction !== gameEvent._direction ||
+                enemy.moving !== (gameEvent._moveType > 0)) {
+              changed = true;
+            }
             enemy.x = gameEvent._x;
             enemy.y = gameEvent._y;
             enemy.direction = gameEvent._direction || 2;
             enemy.moving = gameEvent._moveType > 0;
           }
         });
+        if (changed) this.needsRedraw = true;
       } catch (error) {
         console.warn("Could not update enemy positions:", error);
       }
@@ -581,16 +591,15 @@ export default {
       try {
         const currentMapId = $gameMap.mapId();
 
-        // If map has changed, update all map-related data
         if (currentMapId !== this.lastKnownMapId) {
           console.log(
             `Map changed from ${this.lastKnownMapId} to ${currentMapId}`,
           );
           this.updateCurrentMapData();
-          this.updateMapEvents(); // Handles all event classification in one pass
+          this.updateMapEvents();
           this.lastKnownMapId = currentMapId;
+          this.needsRedraw = true;
 
-          // Force immediate re-render after map change
           this.$nextTick(() => {
             if (this.isCanvasVisible) this.renderMap();
           });

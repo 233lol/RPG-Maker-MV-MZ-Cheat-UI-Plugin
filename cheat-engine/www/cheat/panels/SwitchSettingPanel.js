@@ -192,7 +192,7 @@ export default {
       const hasTurnOff = this.filteredTableItems.find(
         (item) => item.value === false,
       );
-      return !!!hasTurnOff;
+      return !hasTurnOff;
     },
 
     allSwitchIcon() {
