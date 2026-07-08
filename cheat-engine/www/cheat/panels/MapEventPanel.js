@@ -54,10 +54,11 @@ export default {
                 v-model="readInterval"
                 label="读取间隔 (100-1000ms)"
                 density="compact"
-                type="number"
                 bg-color="grey-darken-3"
                 hide-details
-                variant="outlined">
+                variant="outlined"
+                @change="onReadIntervalChange"
+                @keydown.stop>
             </v-text-field>
         </v-col>
     </v-row>
@@ -127,47 +128,15 @@ export default {
 
   watch: {
     limitedView(newValue) {
-      // Save setting to localStorage
       this.saveSetting("mapEventPanel_limitedView", newValue);
-
-      // Update canvas size when switching between limited and full view
       this.updateCanvasSize();
-
-      // Force re-render on next tick to ensure canvas is properly updated
       this.$nextTick(() => {
         if (this.isCanvasVisible) this.renderMap();
       });
     },
 
     clickToTeleportEnabled(newValue) {
-      // Save setting to localStorage
       this.saveSetting("mapEventPanel_clickToTeleport", newValue);
-    },
-    readInterval(newValue) {
-      // Validate interval (100-1000ms)
-      let valid = parseInt(newValue);
-      if (isNaN(valid) || valid < 100) valid = 100;
-      if (valid > 1000) valid = 1000;
-      if (valid !== this.readInterval) {
-        this.readInterval = valid;
-      }
-      // Save setting
-      this.saveSetting("mapEventPanel_readInterval", valid);
-      // Reset interval
-      if (this.renderIntervalId) {
-        clearInterval(this.renderIntervalId);
-        this.renderIntervalId = null;
-      }
-      // Start new interval with validated value
-      this.renderIntervalId = setInterval(() => {
-        this.checkForMapChange();
-        this.updatePlayerPosition();
-        this.updateEnemyPositions();
-        if (this.isCanvasVisible && this.needsRedraw) {
-          this.renderMap();
-          this.needsRedraw = false;
-        }
-      }, valid);
     },
   },
 
@@ -256,6 +225,29 @@ export default {
           this.needsRedraw = false;
         }
       }, this.readInterval);
+    },
+
+    onReadIntervalChange() {
+      let valid = parseInt(this.readInterval);
+      if (isNaN(valid) || valid < 100) valid = 100;
+      if (valid > 1000) valid = 1000;
+      if (valid !== this.readInterval) {
+        this.readInterval = valid;
+      }
+      this.saveSetting("mapEventPanel_readInterval", valid);
+      if (this.renderIntervalId) {
+        clearInterval(this.renderIntervalId);
+        this.renderIntervalId = null;
+      }
+      this.renderIntervalId = setInterval(() => {
+        this.checkForMapChange();
+        this.updatePlayerPosition();
+        this.updateEnemyPositions();
+        if (this.isCanvasVisible && this.needsRedraw) {
+          this.renderMap();
+          this.needsRedraw = false;
+        }
+      }, valid);
     },
 
     updateCurrentMapData() {
