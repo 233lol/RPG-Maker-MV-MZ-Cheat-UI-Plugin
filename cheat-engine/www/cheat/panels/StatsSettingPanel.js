@@ -162,8 +162,16 @@ export default {
         this.initializeVariables();
         return;
       }
-      const diff = newVal - item._actor.param(paramIndex);
-      item._actor.addParam(paramIndex, diff);
+      const base = item._actor.paramBase(paramIndex);
+      const growth =
+        typeof item._actor.paramGrowth === "function"
+          ? item._actor.paramGrowth(paramIndex)
+          : 0;
+      const equipBonus = item._actor
+        .equips()
+        .reduce((sum, eq) => sum + (eq ? eq.params[paramIndex] : 0), 0);
+      item._actor._paramPlus[paramIndex] =
+        newVal - base - equipBonus - growth;
       this.initializeVariables();
     },
 
