@@ -8,9 +8,29 @@ export default {
   template: `
 <v-card flat class="ma-0 pa-0">
     <v-row>
+        <v-col cols="12">
+            <v-card variant="outlined" color="primary" class="pa-2 mb-2">
+                <v-row dense>
+                    <v-col cols="4" class="text-center">
+                        <div class="text-caption text-grey">当前地图</div>
+                        <div class="text-body-2 font-weight-bold">{{ currentMapName }}</div>
+                    </v-col>
+                    <v-col cols="4" class="text-center">
+                        <div class="text-caption text-grey">X</div>
+                        <div class="text-body-2 font-weight-bold">{{ currentX }}</div>
+                    </v-col>
+                    <v-col cols="4" class="text-center">
+                        <div class="text-caption text-grey">Y</div>
+                        <div class="text-body-2 font-weight-bold">{{ currentY }}</div>
+                    </v-col>
+                </v-row>
+            </v-card>
+        </v-col>
+    </v-row>
+    <v-row>
         <v-col
-            cols="6"
-            md="6">
+            cols="4"
+            md="4">
             <v-text-field
                 v-model="inputX"
                 label="X"
@@ -24,8 +44,8 @@ export default {
             </v-text-field>
         </v-col>
         <v-col
-            cols="6"
-            md="6">
+            cols="4"
+            md="4">
             <v-text-field
                 v-model="inputY"
                 label="Y"
@@ -37,6 +57,19 @@ export default {
                 @focus="$event.target.select()"
                 @keydown.stop>
             </v-text-field>
+        </v-col>
+        <v-col
+            cols="4"
+            md="4"
+            class="d-flex align-center">
+            <v-btn
+                color="orange"
+                size="small"
+                variant="outlined"
+                @click="sameMapTeleport">
+                <v-icon start>mdi-map-marker-path</v-icon>
+                当前传送
+            </v-btn>
         </v-col>
     </v-row>
 
@@ -121,8 +154,13 @@ export default {
       inputX: "0",
       inputY: "0",
 
+      currentX: 0,
+      currentY: 0,
+      currentMapName: "",
+      updateTimer: null,
+
       search: "",
-      excludeFullPath: true,
+      excludeFullPath: false,
 
       maps: [],
 
@@ -151,6 +189,16 @@ export default {
 
   created() {
     this.initializeVariables();
+    this.updateCurrentPosition();
+    this.updateTimer = setInterval(() => {
+      this.updateCurrentPosition();
+    }, 1000);
+  },
+
+  beforeUnmount() {
+    if (this.updateTimer) {
+      clearInterval(this.updateTimer);
+    }
   },
 
   computed: {
@@ -239,6 +287,31 @@ export default {
       }
       $gamePlayer.reserveTransfer(mapId, x, y, $gamePlayer.direction(), 0);
       $gamePlayer.setPosition(x, y);
+    },
+
+    updateCurrentPosition() {
+      if (typeof $gamePlayer !== 'undefined' && $gamePlayer) {
+        this.currentX = $gamePlayer.x;
+        this.currentY = $gamePlayer.y;
+      }
+      if (typeof $gameMap !== 'undefined' && $gameMap) {
+        const mapId = $gameMap.mapId();
+        if ($dataMapInfos && $dataMapInfos[mapId]) {
+          this.currentMapName = $dataMapInfos[mapId].name;
+        }
+      }
+    },
+
+    sameMapTeleport() {
+      const x = Number(this.inputX);
+      const y = Number(this.inputY);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        return;
+      }
+      $gamePlayer.setPosition(x, y);
+      $gamePlayer.center(x, y);
+      $gamePlayer.makeEncounterCount();
+      this.updateCurrentPosition();
     },
   },
 };
