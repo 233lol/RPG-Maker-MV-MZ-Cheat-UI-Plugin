@@ -184,7 +184,10 @@ export default {
     },
 
     extractActorData(actor) {
-      const learnedSkillIds = actor.skills().map((s) => s.id);
+      const learnedSkillIds = actor
+        .skills()
+        .filter((s) => !!s)
+        .map((s) => s.id);
 
       return {
         _actor: actor,
@@ -278,7 +281,10 @@ export default {
       actorObj.learnSkill(skill.id);
 
       // Refresh the actor's learned skill ids
-      actor.learnedSkillIds = actorObj.skills().map((s) => s.id);
+      actor.learnedSkillIds = actorObj
+        .skills()
+        .filter((s) => !!s)
+        .map((s) => s.id);
     },
 
     removeSkill(actor, skillItem) {
@@ -289,7 +295,10 @@ export default {
       actorObj.forgetSkill(skill.id);
 
       // Refresh the actor's learned skill ids
-      actor.learnedSkillIds = actorObj.skills().map((s) => s.id);
+      actor.learnedSkillIds = actorObj
+        .skills()
+        .filter((s) => !!s)
+        .map((s) => s.id);
     },
   },
 };
