@@ -11,14 +11,14 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",
-    "@shikijs/core": "^4.0.2",
-    "@shikijs/engine-oniguruma": "^4.0.2",
-    "@shikijs/langs": "^4.0.2",
-    "@shikijs/themes": "^4.0.2",
-    "esbuild": "^0.27.4",
-    "shiki": "^4.0.2",
-    "vue": "^3.5.39",
-    "vuetify": "^3.12.9"
+    "@shikijs/core": "^4.4.3",
+    "@shikijs/engine-oniguruma": "^4.4.3",
+    "@shikijs/langs": "^4.4.3",
+    "@shikijs/themes": "^4.4.3",
+    "esbuild": "^0.27.7",
+    "shiki": "^4.4.3",
+    "vue": "^3.5.42",
+    "vuetify": "^3.13.3"
   },
-  "packageManager": "pnpm@11.10.0"
+  "packageManager": "pnpm@12.3.4"
 }
