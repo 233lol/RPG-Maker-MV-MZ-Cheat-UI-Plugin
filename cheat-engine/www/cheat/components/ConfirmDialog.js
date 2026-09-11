@@ -7,7 +7,7 @@ export default {
     <v-card
         class="pt-4">
       <v-card-text
-        class="text-subtitle-1">
+        class="text-body-large">
         <template v-for="(msg, idx) in messageArray" :key="idx">
           <span>{{msg}}</span>
           <br/>

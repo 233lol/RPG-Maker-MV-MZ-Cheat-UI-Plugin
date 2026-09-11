@@ -17,12 +17,12 @@ export default {
     
     <v-row class="mb-0 pa-0">
         <v-col cols="12">
-            <div class="text-caption">
+            <div class="text-body-small">
                 <v-chip size="x-small" color="grey">灰色: 可行走</v-chip>
                 <v-chip size="x-small" color="grey-darken-3" class="ml-2">深灰: 不可行走</v-chip>
                 <v-chip size="x-small" color="red" class="ml-2">红点: 角色位置</v-chip>
-                <v-chip size="x-small" color="yellow" text-color="black" class="ml-2">EV: 事件位置</v-chip>
-                <v-chip size="x-small" color="white" text-color="black" class="ml-2">白线: 地图边界</v-chip>
+                <v-chip size="x-small" color="yellow" class="ml-2 text-black">EV: 事件位置</v-chip>
+                <v-chip size="x-small" color="white" class="ml-2 text-black">白线: 地图边界</v-chip>
                 <v-chip size="x-small" color="orange" class="ml-2">橙点: 敌人/可移动的事件位置</v-chip>
                 <v-chip size="x-small" color="blue" class="ml-2">蓝点: 宝箱/道具变化的事件位置</v-chip>
             </div>

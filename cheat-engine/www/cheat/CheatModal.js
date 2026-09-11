@@ -37,12 +37,12 @@ export default {
     width="80vw"
     height="90vh"
     style="max-width: 775px; max-height: 550px;">
-    <v-row 
-        class="fill-height ma-0 pa-0">
+    <div 
+        class="d-flex fill-height ma-0 pa-0">
         <div
             :style="'width: ' + navWidth + 'px;'"
             class="fill-height d-inline pa-1 overflow-y-auto hide-scrollbar">
-            <v-list density="compact" nav class="text-caption cheat-nav" :opened="openedGroups">
+            <v-list density="compact" nav class="text-body-small cheat-nav" :opened="openedGroups">
                 <template v-for="item in navTreeItems" :key="item.name">
                     <v-list-group v-if="item.children" :value="item.name">
                         <template v-slot:activator="{ props }">
@@ -81,7 +81,7 @@ export default {
             class="fill-height d-inline pa-2 overflow-y-auto hide-scrollbar">
             <component :is="modelValue"></component>
         </div>
-    </v-row>
+    </div>
 </v-card>
     `,
 

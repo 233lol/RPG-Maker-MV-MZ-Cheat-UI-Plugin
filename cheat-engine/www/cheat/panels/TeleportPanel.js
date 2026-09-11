@@ -10,18 +10,18 @@ export default {
     <v-row>
         <v-col cols="12">
             <v-card variant="outlined" color="primary" class="pa-2 mb-2">
-                <v-row dense>
+                <v-row density="compact">
                     <v-col cols="4" class="text-center">
-                        <div class="text-caption text-grey">当前地图</div>
-                        <div class="text-body-2 font-weight-bold">{{ currentMapName }}</div>
+                        <div class="text-body-small text-grey">当前地图</div>
+                        <div class="text-body-medium font-weight-bold">{{ currentMapName }}</div>
                     </v-col>
                     <v-col cols="4" class="text-center">
-                        <div class="text-caption text-grey">X</div>
-                        <div class="text-body-2 font-weight-bold">{{ currentX }}</div>
+                        <div class="text-body-small text-grey">X</div>
+                        <div class="text-body-medium font-weight-bold">{{ currentX }}</div>
                     </v-col>
                     <v-col cols="4" class="text-center">
-                        <div class="text-caption text-grey">Y</div>
-                        <div class="text-body-2 font-weight-bold">{{ currentY }}</div>
+                        <div class="text-body-small text-grey">Y</div>
+                        <div class="text-body-medium font-weight-bold">{{ currentY }}</div>
                     </v-col>
                 </v-row>
             </v-card>
@@ -124,7 +124,7 @@ export default {
          <template #bottom>
              <div class="d-flex align-center justify-space-between pa-2">
                  <div class="d-flex align-center">
-                     <span class="text-caption mr-2">每页</span>
+                     <span class="text-body-small mr-2">每页</span>
                      <v-select
                          v-model="pagination.itemsPerPage"
                          :items="[5, 10, 15, 20]"
@@ -135,7 +135,7 @@ export default {
                      ></v-select>
                  </div>
                  <div class="d-flex align-center ga-2">
-                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <span class="text-body-small text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
                      <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
                      <page-jump
                          :page="pagination.page"

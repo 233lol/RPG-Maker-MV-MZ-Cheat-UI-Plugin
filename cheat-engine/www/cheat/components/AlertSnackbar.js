@@ -13,16 +13,15 @@ export default {
     <span 
         v-for="(line, idx) in text"
         :key="idx"
-        class="font-weight-bold text-caption d-block">
+        class="font-weight-bold text-body-small d-block">
         {{ line }}
     </span>
-    <template #actions="{ props }">
+    <template #actions>
     <v-btn
         size="x-small"
         style="margin:0"
         color="white"
         icon
-        v-bind="props"
         @click="showSnackbar = false">
         <v-icon size="small">mdi-close</v-icon>
     </v-btn>

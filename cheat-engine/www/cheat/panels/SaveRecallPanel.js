@@ -9,7 +9,7 @@ export default {
   template: `
 <v-card flat class="ma-0 pa-0">
     <v-card-subtitle class="ma-0 pa-0">保存当前位置</v-card-subtitle>
-    <span class="text-body-2 text-green-darken-1">地图 : {{currentMapName}}</span>
+    <span class="text-body-medium text-green-darken-1">地图 : {{currentMapName}}</span>
     <v-text-field
         ref="locationAliasField"
         label="位置别名"
@@ -21,7 +21,7 @@ export default {
         @keydown="onLocationAliasKeyDown"
         @focus="$event.target.select()"
         @keydown.stop>
-        <template #append-outer>
+        <template #append>
             <v-tooltip
                 location="bottom">
                 <template #activator="{ props }">
@@ -104,7 +104,7 @@ export default {
          <template #bottom>
              <div class="d-flex align-center justify-space-between pa-2">
                  <div class="d-flex align-center">
-                     <span class="text-caption mr-2">每页</span>
+                     <span class="text-body-small mr-2">每页</span>
                      <v-select
                          v-model="pagination.itemsPerPage"
                          :items="[5, 10, 15, 20]"
@@ -115,7 +115,7 @@ export default {
                      ></v-select>
                  </div>
                  <div class="d-flex align-center ga-2">
-                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <span class="text-body-small text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
                      <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
                      <page-jump
                          :page="pagination.page"

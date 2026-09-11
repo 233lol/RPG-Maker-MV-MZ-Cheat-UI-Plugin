@@ -27,7 +27,7 @@ No tests, linter, typechecker, or tsconfig (all source is plain JS except `tools
 
 | Path | Purpose |
 |---|---|
-| `cheat-engine/www/cheat/` | Cheat UI source. Vue 3 + Vuetify 3, ES module JS files. |
+| `cheat-engine/www/cheat/` | Cheat UI source. Vue 3 + Vuetify 4, ES module JS files. |
 | `cheat-engine/www/_cheat_initialize/mv/` | MV-specific `main.js` replacement |
 | `cheat-engine/www/_cheat_initialize/mz/` | MZ-specific `main.js` replacement |
 | `tools/` | Shiki bundle dev tooling |

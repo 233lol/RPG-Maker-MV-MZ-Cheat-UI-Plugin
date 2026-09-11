@@ -50,7 +50,7 @@ export default {
             hide-details
             @end="onSpeedChange">
             <template #prepend>
-                <span class="text-grey-lighten-1 align-self-center mr-2 text-body-2" style="white-space: nowrap;">移动速度</span>
+                <span class="text-grey-lighten-1 align-self-center mr-2 text-body-medium" style="white-space: nowrap;">移动速度</span>
                 <v-icon color="grey lighten-3" @click="addSpeed(-stepSpeed)">mdi-chevron-left</v-icon>
             </template>
             <template #append>
@@ -78,7 +78,7 @@ export default {
             hide-details
             @end="onGameSpeedChange">
             <template #prepend>
-                <span class="text-grey-lighten-1 align-self-center mr-2 d-inline-block text-body-2" style="white-space: nowrap;">游戏速度</span>
+                <span class="text-grey-lighten-1 align-self-center mr-2 d-inline-block text-body-medium" style="white-space: nowrap;">游戏速度</span>
                 <v-icon color="grey lighten-3" @click="addGameSpeed(-stepGameSpeed)">mdi-chevron-left</v-icon>
             </template>
             <template #append>
@@ -132,7 +132,7 @@ export default {
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-spacer></v-spacer>
-                <span class="text-h6">Event ID: {{ inspectedEventId === null ? '-' : inspectedEventId }}</span>
+                <span class="text-title-large">Event ID: {{ inspectedEventId === null ? '-' : inspectedEventId }}</span>
             </v-card-title>
             <v-card-text>
               <v-sheet
@@ -189,7 +189,7 @@ export default {
                     <v-btn size="small" variant="text" @click="clearReplOutput">清空输出</v-btn>
                 </v-card-actions>
                 <v-spacer></v-spacer>
-                <span class="text-h6">调试 REPL</span>
+                <span class="text-title-large">调试 REPL</span>
             </v-card-title>
             <v-card-text>
                 <v-textarea
@@ -207,9 +207,9 @@ export default {
                     style="font-family: monospace; font-size: 12px;">
                 </v-textarea>
 
-                <div class="mt-3 mb-1 text-caption">输出</div>
+                <div class="mt-3 mb-1 text-body-small">输出</div>
                 <v-textarea
-                    :value="replOutputText"
+                    :model-value="replOutputText"
                     variant="outlined"
                     auto-grow
                     rows="23"
@@ -224,7 +224,7 @@ export default {
         </v-card>
     </v-dialog>
 
-    <v-card-text class="pt-2 pb-2 text-caption text-grey-lighten-1 text-center">
+    <v-card-text class="pt-2 pb-2 text-body-small text-grey-lighten-1 text-center">
         <a
             :href="versionUrl"
             target="_blank"
@@ -610,7 +610,7 @@ export default {
 
       if (
         typeof node.closest === "function" &&
-        node.closest(".v-dialog__content")
+        node.closest(".v-dialog")
       ) {
         return true;
       }
@@ -739,7 +739,7 @@ export default {
     },
 
     versionLabel() {
-      return `Commit ${RPGVERSION}, Vue 3 + Vuetify 3`;
+      return `Commit ${RPGVERSION}, Vue 3 + Vuetify 4`;
     },
 
     versionUrl() {

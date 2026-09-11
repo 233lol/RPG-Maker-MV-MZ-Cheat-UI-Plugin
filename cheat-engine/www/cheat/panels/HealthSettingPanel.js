@@ -12,7 +12,7 @@ export default {
 <v-card 
     class="ma-0 pa-0"
     flat>
-    <v-card-subtitle class="text-caption pb-0">战斗</v-card-subtitle>
+    <v-card-subtitle class="text-body-small pb-0">战斗</v-card-subtitle>
     <v-card-text class="pt-0 pb-2">
         <v-checkbox
             v-model="disableRandomEncounter"
@@ -21,7 +21,7 @@ export default {
             class="my-0 py-0"
             @change="onDisableRandomEncounterChange">
             <template #label>
-                <span class="text-caption">禁用随机遇敌</span>
+                <span class="text-body-small">禁用随机遇敌</span>
             </template>
         </v-checkbox>
         <v-btn size="small" @click.prevent="encounterBattle">遇敌</v-btn>
@@ -31,7 +31,7 @@ export default {
         <v-btn size="small" @click.prevent="abort">中止</v-btn>
     </v-card-text>
     
-    <v-card-subtitle class="text-caption pb-1">敌人</v-card-subtitle>
+    <v-card-subtitle class="text-body-small pb-1">敌人</v-card-subtitle>
     <v-card-text class="pt-0 pb-2">
         <v-btn size="small" @click.prevent="changeAllEnemyHealth(0)">HP 0</v-btn>
         <v-btn size="small" @click.prevent="changeAllEnemyHealth(1)">HP 1</v-btn>
@@ -39,7 +39,7 @@ export default {
         <v-btn size="small" @click.prevent="fillTpAllEnemy">补满 TP</v-btn>
     </v-card-text>
     
-    <v-card-subtitle class="text-caption pb-1">队伍</v-card-subtitle>
+    <v-card-subtitle class="text-body-small pb-1">队伍</v-card-subtitle>
     <v-card-text class="pt-0 pb-2">
         <v-btn size="small" @click.prevent="changeAllPartyHealth(0)">HP 0</v-btn>
         <v-btn size="small" @click.prevent="changeAllPartyHealth(1)">HP 1</v-btn>
@@ -48,7 +48,7 @@ export default {
     </v-card-text>
     
     <template v-if="enemy && enemy.length > 0">
-        <v-card-subtitle class="text-caption pb-1">敌人详情</v-card-subtitle>
+        <v-card-subtitle class="text-body-small pb-1">敌人详情</v-card-subtitle>
         <v-card-text class="pt-0 pb-2">
             <health-setting-tab
                 :items="enemy"
@@ -58,7 +58,7 @@ export default {
     </template>
     
     <template v-if="party && party.length > 0">
-        <v-card-subtitle class="text-caption pb-1">队伍详情</v-card-subtitle>
+        <v-card-subtitle class="text-body-small pb-1">队伍详情</v-card-subtitle>
         <v-card-text class="pt-0 pb-2">
             <health-setting-tab
                 :items="party"

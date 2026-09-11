@@ -2,10 +2,10 @@
 
 基于 [Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin) 修改而来。
 
-Vue 2 + Vuetify 2 迁移至 Vue 3 + Vuetify 3。
+Vue 2 + Vuetify 2 迁移至 Vue 3，UI 框架已升级至 Vuetify 4。
 
 ## 变化 / 功能
-- Vue 3 + Vuetify 3 重构
+- Vue 3 + Vuetify 4 重构
 - Makefile 构建系统
 - 诸多 bug 修复
 - 添加了角色技能修改
@@ -42,7 +42,7 @@ make clean
 | 命令 | 产物 | 说明 |
 |---|---|---|
 | `pnpm run vendor:shiki` | `cheat-engine/www/cheat/libs/shiki.bundle.mjs` | Shiki 语法高亮引擎 (esbuild 打包) |
-| `pnpm run vendor:vuetify` | `cheat-engine/www/cheat/libs/vuetify.js` | Vuetify 3 ESM (esbuild 打包) |
+| `pnpm run vendor:vuetify` | `cheat-engine/www/cheat/libs/vuetify.js` | Vuetify 4 ESM (esbuild 打包) |
 | `pnpm run vendor:vue` | `cheat-engine/www/cheat/libs/vue.js` | 从 `node_modules/vue/dist/vue.esm-browser.js` 复制 |
 | `pnpm run vendor:assets` | `css/vuetify.css`, `css/materialdesignicons.css`, `fonts/*` | 从 npm 包复制 CSS 和字体 |
 | `pnpm run vendor:libs` | - | 运行 `vendor:vuetify` + `vendor:vue` + `vendor:assets` |
@@ -55,7 +55,7 @@ Vendor 构建由 Makefile 依赖自动触发，无需手动执行。
 
 | 路径 | 说明 |
 |---|---|
-| `cheat-engine/www/cheat/` | Cheat UI 源码 (Vue 3 + Vuetify 3, ES Module) |
+| `cheat-engine/www/cheat/` | Cheat UI 源码 (Vue 3 + Vuetify 4, ES Module) |
 | `cheat-engine/www/cheat/panels/` | 各功能面板组件 |
 | `cheat-engine/www/cheat/components/` | 通用 UI 组件 |
 | `cheat-engine/www/cheat/js/` | 工具函数 / Cheat API |

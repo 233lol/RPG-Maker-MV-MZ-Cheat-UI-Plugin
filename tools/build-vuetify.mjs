@@ -24,9 +24,9 @@ await esbuild.build({
   ],
 });
 
-console.log('Vuetify 3 ESM bundle built successfully.');
+console.log('Vuetify 4 ESM bundle built successfully.');
 
-// Remove CSS emitted alongside JS (it's a subset; full CSS comes from vendor:assets)
+// Remove CSS emitted alongside JS (components import their own styles; full CSS comes from vendor:assets)
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const libsCss = resolve(root, 'cheat-engine/www/cheat/libs/vuetify.css');

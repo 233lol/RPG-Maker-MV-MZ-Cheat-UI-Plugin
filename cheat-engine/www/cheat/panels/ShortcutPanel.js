@@ -70,7 +70,7 @@ export default {
     <v-data-table
         class="mt-2"
         density="compact"
-        single-expand
+        expand-strategy="single"
         :headers="filteredHeaders"
         v-model:expanded="tableExpanded"
         :items="filteredShortcuts"
@@ -148,7 +148,7 @@ export default {
          <template #bottom>
              <div class="d-flex align-center justify-space-between pa-2">
                  <div class="d-flex align-center">
-                     <span class="text-caption mr-2">每页</span>
+                     <span class="text-body-small mr-2">每页</span>
                      <v-select
                          v-model="pagination.itemsPerPage"
                          :items="[5, 10, 15, 20]"
@@ -159,7 +159,7 @@ export default {
                      ></v-select>
                  </div>
                  <div class="d-flex align-center ga-2">
-                     <span class="text-caption text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
+                     <span class="text-body-small text-no-wrap">{{ paginationStart }}-{{ paginationStop }} / {{ totalCount }}</span>
                      <v-pagination v-model="pagination.page" :length="pageCount" density="compact" :total-visible="5" size="small"></v-pagination>
                      <page-jump
                          :page="pagination.page"

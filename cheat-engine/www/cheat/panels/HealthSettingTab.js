@@ -10,7 +10,7 @@ export default {
         :items="editingItems"
         hide-default-footer>
         <template #item.name="{ item }">
-            <span class="text-caption">{{item.name}}</span>
+            <span class="text-body-small">{{item.name}}</span>
         </template>
         <template #item.hp="{ item }">
             <div class="d-flex align-center" style="gap: 2px; white-space: nowrap;">
@@ -26,7 +26,7 @@ export default {
                     @focus="$event.target.select()"
                     @keydown.stop>
                 </v-text-field>
-                <span class="text-caption" style="flex: none;">/ {{item.hp.mhp}}</span>
+                <span class="text-body-small" style="flex: none;">/ {{item.hp.mhp}}</span>
             </div>
         </template>
         <template #item.mp="{ item }">
@@ -43,7 +43,7 @@ export default {
                     @focus="$event.target.select()"
                     @keydown.stop>
                 </v-text-field>
-                <span class="text-caption" style="flex: none;">/ {{item.mp.mmp}}</span>
+                <span class="text-body-small" style="flex: none;">/ {{item.mp.mmp}}</span>
             </div>
         </template>
     </v-data-table>

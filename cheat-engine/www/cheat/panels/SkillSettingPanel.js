@@ -107,7 +107,7 @@ export default {
                     <template #bottom>
                         <div class="d-flex align-center justify-space-between pa-2">
                             <div class="d-flex align-center">
-                                <span class="text-caption mr-2">每页</span>
+                                <span class="text-body-small mr-2">每页</span>
                                 <v-select
                                     v-model="actor.pagination.itemsPerPage"
                                     :items="[5, 10, 15, 20]"
@@ -118,7 +118,7 @@ export default {
                                 ></v-select>
                             </div>
                             <div class="d-flex align-center ga-2">
-                                <span class="text-caption text-no-wrap">{{ paginationStartFor(actor) }}-{{ paginationStopFor(actor) }} / {{ totalCountFor(actor) }}</span>
+                                <span class="text-body-small text-no-wrap">{{ paginationStartFor(actor) }}-{{ paginationStopFor(actor) }} / {{ totalCountFor(actor) }}</span>
                                 <v-pagination v-model="actor.pagination.page" :length="pageCountFor(actor)" density="compact" :total-visible="5" size="small"></v-pagination>
                                 <page-jump
                                     :page="actor.pagination.page"
