@@ -92,3 +92,4 @@ GitHub Actions 在推送到 `main`、`vue-3` 时自动构建并上传 `.tar.gz` 
 ## 许可证
 
 参见原项目许可证。
+MIT License
