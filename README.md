@@ -1,5 +1,5 @@
 # RPG-Maker-MV-MZ-Cheat-UI-Plugin
-不在更新 fork仓库，新项目见：[233lol/RPG-Maker-MV-MZ-Cheat-UI-Plugin-Plus](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin-Plus)
+不在更新 fork仓库，新项目见：[233lol/RPG-Maker-MV-MZ-Cheat-UI-Plugin-Plus](https://github.com/233lol/RPG-Maker-MV-MZ-Cheat-UI-Plugin-Plus)
 
 基于 [Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/Justype/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/paramonos/RPG-Maker-MV-MZ-Cheat-UI-Plugin)、[notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin](https://github.com/notch1p/RPG-Maker-MV-MZ-Cheat-UI-Plugin) 修改而来。
 
